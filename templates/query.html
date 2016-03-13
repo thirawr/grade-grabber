@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<table>
+	{% for each in results %}
+	<tr>
+		<td>{{each.subject}}</td>
+		<td>{{each.course_number}}</td>
+		<td>{{each.title}}</td>
+		<td>{{each.average_gpa}}</td>
+	</tr>
+	{% endfor %}
+</table>
