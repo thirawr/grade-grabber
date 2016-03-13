@@ -1,13 +1,14 @@
 from flask import Flask, render_template
 from flaskext.mysql import MySQL
 
+from cred import Cred
 app = Flask(__name__)
 mysql = MySQL()
 
-app.config['MYSQL_DATABASE_USER'] = #YOUR USERNAME
-app.config['MYSQL_DATABASE_PASSWORD'] = #YOUR PW
-app.config['MYSQL_DATABASE_DB'] = 'grade_grabber'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_USER'] = Cred['MYSQL_DATABASE_USER']
+app.config['MYSQL_DATABASE_PASSWORD'] = Cred['MYSQL_DATABASE_PASSWORD']
+app.config['MYSQL_DATABASE_DB'] = Cred['MYSQL_DATABASE_DB']
+app.config['MYSQL_DATABASE_HOST'] = Cred['MYSQL_DATABASE_HOST']
 
 mysql.init_app(app)
 dbConnection = mysql.connect()
@@ -22,7 +23,7 @@ def search_by_subject_number():
 		for attribute in row:
 			if row.index(attribute) == 0:
 				rowMap['subject'] = str(attribute)
-			elif row.index(attribute) == 1: 
+			elif row.index(attribute) == 1:
 				rowMap['course_number'] = int(attribute)
 			elif row.index(attribute) == 2:
 				rowMap['title'] = str(attribute)
