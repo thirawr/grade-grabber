@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+{% extends 'layout.html' %}
+{% block body %}
+{{status}}
 <form action="">
 <h2>Display Course Data</h2>
   <p>Subject (e.g. CS):</p>
@@ -97,4 +99,4 @@ F's:<br>
 </form>
 
 </body>
-</html>
+{% endblock %}
