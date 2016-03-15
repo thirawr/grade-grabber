@@ -2,21 +2,33 @@
 {% block body %}
 <table>
 	<tr>
-		<td>Subject</td>
-		<td>Course Number</td>
-		<td>Title</td>
-		<td>Average GPA</td>
 		<td>CRN</td>
 		<td>Term</td>
+		<td>Subject</td>
+		<td>Number</td>
+		<td>Title</td>
+		<td>Average GPA</td>
+		<td>A+'s</td>
+		<td>A's</td>
+		<td>A-'s</td>
+		<td>B+'s</td>
+		<td>B's</td>
+		<td>B-'s</td>
+		<td>C+'s</td>
+		<td>C's</td>
+		<td>C-'s</td>
+		<td>D+'s</td>
+		<td>D's</td>
+		<td>D-'s</td>
+		<td>F's</td>
+		<td>Instructor</td>
+		<td>Section</td>
 	</tr>
 	{% for each in results %}
 	<tr>
-		<td>{{each.subject}}</td>
-		<td>{{each.course_number}}</td>
-		<td>{{each.title}}</td>
-		<td>{{each.average_gpa}}</td>
-		<td>{{each.crn}}</td>
-		<td>{{each.term}}</td>
+		{% for attribute in each %}
+			<td>{{attribute}}</td>
+		{% endfor %}
 	</tr>
 	{% endfor %}
 </table>

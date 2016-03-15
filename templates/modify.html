@@ -1,102 +1,110 @@
 {% extends 'layout.html' %}
 {% block body %}
 {{status}}
-<form action="">
-<h2>Display Course Data</h2>
-  <p>Subject (e.g. CS):</p>
-  <input type="text" id="subject" name="subject"><br>
-  <p>Number (e.g. 411):</p>
-  <input type="text" id="number" name="number"><br>
-  <button type="click" onclick=submit name="Submit">Submit</button>
-</form>
-<form action="">
-<h2>Choose a Record to Update</h2>
-  <p>CRN:</p>
-  <input type="text" id="CRN" name="CRN"><br>
-  <p>Term (e.g. FA14, WN13, SP16, SU12):</p>
-  <input type="text" id="term" name="term"><br>
-  <button type="click" onclick=submit name="Submit">Submit</button>
-</form>
+<div>
+  <h2>Display Course Data</h2>
+  <form method="post">
+    <label>Subject (e.g. CS):</label>
+    <input type="text" name="subject"><br>
+    <label>Number (e.g. 411):</label>
+    <input type="text" name="number"><br>
+    <input name="search" type="submit" />
+  </form>
+</div>
+<div>
+  <form method="post">
+  <h2>Choose a Record to Update</h2>
+    <label>CRN:</label><br>
+    <input type="text" name="crn"><br>
+    <label>Subject (e.g. CS):</label><br>
+    <input type="text" name="subject"><br>
+    <label>Number (e.g. 411):</label><br>
+    <input type="text" name="number"><br>
+    <input name="update" type="submit">
+  </form>
+</div>
 
-<html>
-<body>
-<h2>Delete a Record</h2>
-<form action="action_page.php">
-CRN:<br>
-<input type="text" name="crn">
-<br>
-Term (e.g. FA14, WN13, SP16, SU12):<br>
-<input type="text" name="term">
-<br>
-<br>
-<input type="submit">
-</form>
+<div>
+  <h2>Delete a Record</h2>
+  <form method="post">
+  CRN:<br>
+    <input type="text" name="crn">
+    <br>
+    Term (e.g. FA14, WN13, SP16, SU12):<br>
+    <input type="text" name="term">
+    <br>
+    <br>
+    <input name="delete" type="submit">
+  </form>
+</div>
 
 
-
-
-<h2>Insert a Record</h2>
-<form action="action_page.php">
-Subject:<br>
-<input type="text" name="subject">
-<br>
-Course Number:<br>
-<input type="text" name="coursenum">
-<br>
-Title:<br>
-<input type="text" name="title">
-<br>
-CRN:<br>
-<input type="text" name="crn">
-<br>
-Term (e.g. FA14, WN13, SP16, SU12):<br>
-<input type="text" name="term">
-<br>
-Average GPA:<br>
-<input type="text" name="avg_gpa">
-<br>
-A+'s:<br>
-<input type="text" name="aplus">
-<br>
-A's:<br>
-<input type="text" name="a">
-<br>
-A-'s:<br>
-<input type="text" name="aminus">
-<br>
-B+'s:<br>
-<input type="text" name="bplus">
-<br>
-B's:<br>
-<input type="text" name="b">
-<br>
-B-'s:<br>
-<input type="text" name="bminus">
-<br>
-C+'s:<br>
-<input type="text" name="cplus">
-<br>
-C's:<br>
-<input type="text" name="c">
-<br>
-C-'s:<br>
-<input type="text" name="cminus">
-<br>
-D+'s:<br>
-<input type="text" name="dplus">
-<br>
-D's:<br>
-<input type="text" name="d">
-<br>
-D-'s:<br>
-<input type="text" name="dminus">
-<br>
-F's:<br>
-<input type="text" name="f">
-<br>
-<br>
-<input type="submit">
-</form>
-
-</body>
+<div>
+  <h2>Insert a Record</h2>
+  <form method="post">
+    <label>Subject:</label><br>
+    <input type="text" name="subject">
+    <br>
+    <label>Course Number:</label><br>
+    <input type="text" name="number">
+    <br>
+    <label>Title:</label><br>
+    <input type="text" name="title">
+    <br>
+    <label>CRN:</label><br>
+    <input type="text" name="crn">
+    <br>
+    <label>Term (e.g. FA14, WN13, SP16, SU12):</label><br>
+    <input type="text" name="term">
+    <br>
+    <label>Section</label><br>
+    <input type="text" name="section">
+    <br>
+    <label>Instructor name</label><br>
+    <input type="text" name="instructor"></br>
+    <label>Average GPA:</label><br>
+    <input type="text" name="avg_gpa">
+    <br>
+    <label>A+'s:</label><br>
+    <input type="text" name="aplus">
+    <br>
+    <label>A's:</label><br>
+    <input type="text" name="a">
+    <br>
+    <label>A-'s:</label><br>
+    <input type="text" name="aminus">
+    <br>
+    <label>B+'s:</label><br>
+    <input type="text" name="bplus">
+    <br>
+    <label>B's:</label><br>
+    <input type="text" name="b">
+    <br>
+    <label>B-'s:</label><br>
+    <input type="text" name="bminus">
+    <br>
+    <label>C+'s:</label><br>
+    <input type="text" name="cplus">
+    <br>
+    <label>C's:</label><br>
+    <input type="text" name="c">
+    <br>
+    <label>C-'s:</label><br>
+    <input type="text" name="cminus">
+    <br>
+    <label>D+'s:</label><br>
+    <input type="text" name="dplus">
+    <br>
+    <label>D's:</label><br>
+    <input type="text" name="d">
+    <br>
+    <label>D-'s:</label><br>
+    <input type="text" name="dminus">
+    <br>
+    <label>F's:</label><br>
+    <input type="text" name="f">
+    <br>
+    <input name="insert" type="submit">
+  </form>
+</div>
 {% endblock %}
