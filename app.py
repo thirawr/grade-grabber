@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, url_for, abort, flash
 from flaskext.mysql import MySQL
 
 from cred import Cred
+
+
 app = Flask(__name__)
 app.secret_key = 'i_really_love_cookies'
 mysql = MySQL()
@@ -12,30 +14,32 @@ app.config['MYSQL_DATABASE_DB'] = Cred['MYSQL_DATABASE_DB']
 app.config['MYSQL_DATABASE_HOST'] = Cred['MYSQL_DATABASE_HOST']
 
 mysql.init_app(app)
-dbConnection = mysql.connect()
+db_connection = mysql.connect()
 
 def query_all():
 	#__entry__ handles connection into cursor
-	with dbConnection as cursor:
+	with db_connection as cursor:
 		cursor.execute('SELECT * FROM course')
 		results = cursor.fetchall()
 	return results
 
+
 def query_by_crn_term(crn, term):
-	with dbConnection as cursor:
+	with db_connection as cursor:
 		query = 'SELECT * FROM course WHERE crn = (%s) AND term = (%s)'
 		args = crn, term
 		cursor.execute(query, args)
 		return cursor.fetchone(),
 
+
 #Record is a dictionary of values:
 #[Subject, Course#, Title, CRN, Term, Average GPA, A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F]
 def insert_record(record):
-	with dbConnection as cursor:
+	with db_connection as cursor:
 		query = 'SELECT COUNT(*) FROM course WHERE crn = (%s) AND term = (%s)'
 		args = record['crn'], record['term']
 		cursor.execute(query, args)
-		results = cursor.fetchall() 
+		results = cursor.fetchall()
 		if results[0][0] > 0:
 			flash('Course with identical CRN, term already exists in database - try updating the record instead.')
 			return None
@@ -46,45 +50,61 @@ def insert_record(record):
 		values = (subject, record['number'], record['title'], record['crn'], record['term'], section, record['instructor'], None, None, None, None, None, None, None, None, None, None, None, None, None, None)
 	else:
 		values = (subject, record['number'], record['title'], record['crn'], record['term'], section, record['instructor'], record['avg_gpa'], record['aplus'], record['a'], record['aminus'], record['bplus'], record['b'], record['bminus'], record['cplus'], record['c'], record['cminus'], record['dplus'], record['d'], record['dminus'], record['f'])
-	with dbConnection as cursor:
+	with db_connection as cursor:
 		cursor.execute(insertion, values)
-		dbConnection.commit()
+		db_connection.commit()
 		flash('Insertion successful')
 		return 1
+
+
+def delete_by_crn_term(crn, term):
+	row = query_by_crn_term(crn, term)[0]
+	if not row:
+		return None
+	else:
+		with db_connection as cursor:
+			deletion = 'DELETE FROM course WHERE crn=%s AND term=%s;'
+			args = (crn, term)
+			cursor.execute(deletion, args)
+			db_connection.commit
+			return row
+		return None
+
 
 @app.route("/")
 def front():
 	return render_template('query.html', results=query_all())
+
 
 @app.route("/modify", methods=['GET', 'POST'])
 def modify():
 	#status = insert_record(['CS', '411', 'Database Systems', '11111', '120313', '3.5', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 'Tyler Davis', 2112])
 	if request.method == 'POST':
 		query = 'SELECT * FROM course '
-		
+
 		#Searching for a course
 		if 'search' in request.form:
 			subject = request.form['subject']
 			number = request.form['number']
-			with dbConnection as cursor:
+			with db_connection as cursor:
 				query = query + 'WHERE subject = (%s) AND course_number = (%s);'
 				args = str(subject), str(number)
 				cursor.execute(query, args)
 				results = cursor.fetchall()
 			return render_template('query.html', results=results)
-		
+
 		#Updating a record
 		elif 'update' in request.form:
 			subject = request.form['subject']
 			number = request.form['number']
 			crn = request.form['crn']
 			#print crn
-			with dbConnection as cursor:
+			with db_connection as cursor:
 				query = 'SELECT * FROM course WHERE subject = (%s) AND course_number = (%s) AND crn = (%s);'
 				args = subject, number, crn
 				cursor.execute(query, args)
 				result = cursor.fetchone()
-			#Reorder columns 
+			#Reorder columns
 			result = result,
 			print result
 			result = result[0]
@@ -103,11 +123,17 @@ def modify():
 				flash('Insertion requires the following fields at minimum: subject, course number, title, CRN and section.')
 			return render_template('modify.html')
 
-		#@todo: Deleting a record
 		elif 'delete' in request.form:
-			pass
+			row = delete_by_crn_term(request.form['crn'], request.form['term'])
+			if row:
+				flash(('Successfully deleted:\n (%s)' % str(row)))
+			else:
+				flash('Grade report does not exist, nothing deleted.')
+			return render_template('modify.html')
+
 	else:
 		return render_template('modify.html')
+
 
 if __name__ == "__main__":
 	app.run(debug=True)
