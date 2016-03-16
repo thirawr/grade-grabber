@@ -1,0 +1,5 @@
+### grade-grabber pip requirements file ###
+#
+### Requirements without version specifiers ###
+flask
+flask-mysql
