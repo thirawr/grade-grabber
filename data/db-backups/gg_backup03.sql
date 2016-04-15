@@ -156,7 +156,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`Tyler`@`localhost` SQL SECURITY DEFINER */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `grade_aggregates` AS select `c`.`c_id` AS `c_id`,`c`.`subject` AS `subject`,`c`.`course_number` AS `course_number`,`c`.`title` AS `title`,avg(`g`.`average_gpa`) AS `AVG(g.average_gpa)`,sum(`g`.`a_plus_count`) AS `SUM(g.a_plus_count)`,sum(`g`.`a_count`) AS `SUM(g.a_count)`,sum(`g`.`a_minus_count`) AS `SUM(g.a_minus_count)`,sum(`g`.`b_plus_count`) AS `SUM(g.b_plus_count)`,sum(`g`.`b_count`) AS `SUM(g.b_count)`,sum(`g`.`b_minus_count`) AS `SUM(g.b_minus_count)`,sum(`g`.`c_plus_count`) AS `SUM(g.c_plus_count)`,sum(`g`.`c_count`) AS `SUM(g.c_count)`,sum(`g`.`c_minus_count`) AS `SUM(g.c_minus_count)`,sum(`g`.`d_plus_count`) AS `SUM(g.d_plus_count)`,sum(`g`.`d_count`) AS `SUM(g.d_count)`,sum(`g`.`d_minus_count`) AS `SUM(g.d_minus_count)`,sum(`g`.`f_count`) AS `SUM(g.f_count)`,sum(`g`.`w_count`) AS `sum(g.w_count)` from (`grade_counts` `g` join `courses` `c` on((`g`.`c_id` = `c`.`c_id`))) group by `c`.`subject`,`c`.`course_number`,`c`.`title` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;

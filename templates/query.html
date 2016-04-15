@@ -1,35 +1,59 @@
 {% extends "layout.html" %}
 {% block body %}
-<table>
-	<tr>
-		<td>CRN</td>
-		<td>Term</td>
-		<td>Subject</td>
-		<td>Number</td>
-		<td>Title</td>
-		<td>Average GPA</td>
-		<td>A+'s</td>
-		<td>A's</td>
-		<td>A-'s</td>
-		<td>B+'s</td>
-		<td>B's</td>
-		<td>B-'s</td>
-		<td>C+'s</td>
-		<td>C's</td>
-		<td>C-'s</td>
-		<td>D+'s</td>
-		<td>D's</td>
-		<td>D-'s</td>
-		<td>F's</td>
-		<td>Instructor</td>
-		<td>Section</td>
-	</tr>
-	{% for each in results %}
-	<tr>
-		{% for attribute in each %}
+<h1>{{className}}</h1>
+<div class="container-fluid">
+	<h3>Aggregates:</h3>
+		<table class="table table-hover">
+			<tr>
+				<td>Average GPA</td>
+				<td>A+'s</td>
+				<td>A's</td>
+				<td>A-'s</td>
+				<td>B+'s</td>
+				<td>B's</td>
+				<td>B-'s</td>
+				<td>C+'s</td>
+				<td>C's</td>
+				<td>C-'s</td>
+				<td>D+'s</td>
+				<td>D's</td>
+				<td>D-'s</td>
+				<td>F's</td>
+				<td>W's</td>
+			</tr>
+			<tr>
+				{% for attribute in results %}
+				<td>{{attribute}}</td>
+				{% endfor %}
+			</tr>	
+		</table>
+<h3>Semester Details:</h3>
+	<table class="table table-hover">
+		<tr>
+			<td>Term</td>
+			<td>Instructor</td>
+			<td>Average GPA</td>
+			<td>A+'s</td>
+			<td>A's</td>
+			<td>A-'s</td>
+			<td>B+'s</td>
+			<td>B's</td>
+			<td>B-'s</td>
+			<td>C+'s</td>
+			<td>C's</td>
+			<td>C-'s</td>
+			<td>D+'s</td>
+			<td>D's</td>
+			<td>D-'s</td>
+			<td>F's</td>
+			<td>W's</td>
+		</tr>
+		{% for row in semDetails %}
+		<tr>
+			{% for attribute in row %}
 			<td>{{attribute}}</td>
+			{% endfor %}
+		</tr>	
 		{% endfor %}
-	</tr>
-	{% endfor %}
-</table>
+</div>
 {% endblock %}

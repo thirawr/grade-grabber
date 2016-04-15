@@ -16,21 +16,21 @@ app.config['MYSQL_DATABASE_HOST'] = Cred['MYSQL_DATABASE_HOST']
 mysql.init_app(app)
 db_connection = mysql.connect()
 
-def query_all():
-	#__entry__ handles connection into cursor
-	with db_connection as cursor:
-		query = """SELECT s.crn, s.raw_term, c.subject, c.course_number, c.title,
-		g.average_gpa, g.a_plus_count, g.a_count, g.a_minus_count,
-		g.b_plus_count, g.b_count, g.b_minus_count,
-		g.c_plus_count, g.c_count, g.c_minus_count,
-		g.d_plus_count, g.d_count, g.d_minus_count,
-		g.f_count, s.instructor, s.section
-		FROM courses AS c
-		INNER JOIN semesters AS s ON c.c_id = s.c_id
-		INNER JOIN grade_counts AS g ON s.s_id = g.s_id"""
-		cursor.execute(query)
-		results = cursor.fetchall()
-	return results
+# def query_all():
+# 	#__entry__ handles connection into cursor
+# 	with db_connection as cursor:
+# 		query = """SELECT s.crn, s.raw_term, c.subject, c.course_number, c.title,
+# 		g.average_gpa, g.a_plus_count, g.a_count, g.a_minus_count,
+# 		g.b_plus_count, g.b_count, g.b_minus_count,
+# 		g.c_plus_count, g.c_count, g.c_minus_count,
+# 		g.d_plus_count, g.d_count, g.d_minus_count,
+# 		g.f_count, s.instructor, s.section
+# 		FROM courses AS c
+# 		INNER JOIN semesters AS s ON c.c_id = s.c_id
+# 		INNER JOIN grade_counts AS g ON s.s_id = g.s_id"""
+# 		cursor.execute(query)
+# 		results = cursor.fetchall()
+# 	return results
 
 # c_id is an optional paramater
 # default behavior queries grade aggregates
@@ -65,14 +65,42 @@ def get_all_s_ids(subject, number):
 		results = cursor.fetchall()
 	return results
 
-def get_c_id_from_subj_num(subject, number):
-	query = """SELECT c_id FROM courses WHERE subject = (%s) AND number = (%s)"""
+def get_aggs_from_subj_num(subject, number):
+	if subject == "" or number == "":
+		return None
+
+	query = """SELECT c_id FROM courses WHERE subject = (%s) AND course_number = (%s)"""
 	args = (subject, number)
 
 	with db_connection as cursor:
 		cursor.execute(query, args)
 		results = cursor.fetchone()
+		c_id = results[0]
+		query = """SELECT * FROM grade_aggregates WHERE c_id = (%s)"""
+		cursor.execute(query, [c_id])
+		results = cursor.fetchone()
+
+	if len(results) == 0:
+		return None
+	else:
+		return results
+
+def get_semesters_from_c_id(c_id):
+	query = """SELECT
+	s.parsed_term, s.instructor,
+	g.average_gpa, g.a_plus_count, g.a_count, g.a_minus_count,
+	g.b_plus_count, g.b_count, g.b_minus_count, g.c_plus_count,
+	g.c_count, g.c_minus_count, g.d_plus_count, g.d_count, g.d_minus_count,
+	g.f_count, g.w_count 
+	FROM courses AS c INNER JOIN semesters AS s ON c.c_id = s.c_id
+	INNER JOIN grade_counts AS g ON s.s_id = g.s_id
+	WHERE s.c_id = (%s)"""
+
+	with db_connection as cursor:
+		cursor.execute(query, [c_id])
+		results = cursor.fetchall()
 	return results
+
 
 #Deprecated - phase this function out
 def query_by_crn_term(crn, term):
@@ -189,10 +217,49 @@ def delete_by_crn_term(crn, term):
 		return None
 
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def front():
 	# print query_grade_aggs()
-	return render_template('query.html', results=query_all())
+	if request.method == 'GET':
+		return render_template('index.html')
+	
+	elif request.method == 'POST':
+		# print request.form['subj_num']
+		query = request.form['subj_num']
+
+		if len(query) < 1:
+			flash("We can't read your mind! Enter a course subject and number, like CS411.", 'message')
+			return render_template('index.html')
+
+		subj = ""
+		num = ""
+
+		for char in query:
+			if char is ' ':
+				continue
+			elif char in ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'):
+				num += char
+			else:
+				subj += char
+
+		# print num + " " + subj
+
+		results = get_aggs_from_subj_num(subj, num)
+		# print results
+
+
+		if results is None:
+			flash('Course does not exist!', 'alert')
+			return render_template('index.html')
+		else:
+			className = results[1] + str(results[2]) + ": " + results[3]
+			tableResults = results[4:]
+			semDetails = get_semesters_from_c_id(results[0])
+			return render_template('query.html', className = className, results=tableResults, semDetails = semDetails)
+
+		
+
+	#return render_template('index.html')
 
 # @app.route("/update", methods=['GET', 'POST'])
 # def update():
