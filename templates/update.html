@@ -2,6 +2,7 @@
 {% block body %}
 <table>
 	<tr>
+		<td>Semester ID</td>
 		<td>CRN</td>
 		<td>Term</td>
 		<td>Subject</td>
@@ -24,16 +25,19 @@
 		<td>Instructor</td>
 		<td>Section</td>
 	</tr>
+	{% for row in result %}
 	<tr>
-		{% for attribute in result %}
-			<td>{{attribute}}</td>
-		{% endfor %}
+		{% for attribute in row %}
+		<td>{{attribute}}</td>
+		{% endfor  %}
+	</tr>
+	{% endfor %}
 
 	</tr>
 </table>
 <div>
 	<h2>Enter Fields to Update</h2>
-	<form action="action_page.php">
+	<form method="post">
 	Average GPA:<br>
 	<input type="text" name="avg_gpa">
 	<br>
@@ -77,7 +81,7 @@
 	<input type="text" name="f">
 	<br>
 	<br>
-	<input type="submit">
+	<input name="update_conf" type="submit">
 	</form>
 </div>
 {% endblock %}

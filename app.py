@@ -65,6 +65,15 @@ def get_all_s_ids(subject, number):
 		results = cursor.fetchall()
 	return results
 
+def get_c_id_from_subj_num(subject, number):
+	query = """SELECT c_id FROM courses WHERE subject = (%s) AND number = (%s)"""
+	args = (subject, number)
+
+	with db_connection as cursor:
+		cursor.execute(query, args)
+		results = cursor.fetchone()
+	return results
+
 #Deprecated - phase this function out
 def query_by_crn_term(crn, term):
 	with db_connection as cursor:
