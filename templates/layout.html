@@ -1,90 +1,80 @@
 <!DOCTYPE html>
 <html>
-	<head>
-	  <meta charset="utf-8">
-	  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-	  <meta name="viewport" content="width=device-width, initial-scale=1">
-	  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-	  <title>Grade Grabber</title>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Grade Grabber</title>
 
-	  <!-- Latest compiled and minified CSS -->
-	  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
-	  <!-- Optional theme -->
-	  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-<<<<<<< HEAD
     <script src="http://d3js.org/d3.v3.min.js"></script>
 
     <script   src="https://code.jquery.com/jquery-2.2.3.min.js"   integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo="   crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-=======
-	  <link rel="stylesheet" type="text/css" href="/static/styles.css">
->>>>>>> 19760d7ddc71aaec30307b4946a4a48b80fb8ab7
   </head>
 
-	{% block body %}
-		<!-- Fixed navbar -->
-		<nav class="navbar navbar-default navbar-fixed-top">
-		  <div class="container">
-		    <div class="navbar-header">
-		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-		        <span class="sr-only">Toggle navigation</span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		      </button>
-		      <a class="navbar-brand" href="/">Grade Grabber</a>
-		    </div>
-		    <div id="navbar" class="navbar-collapse collapse">
-		      <ul class="nav navbar-nav">
-		        <li class="active"><a href="/">Home</a></li>
-		        <li><a href="#about">About</a></li>
-		      </ul>
-		      <ul class="nav navbar-nav navbar-right">
-		        <li class="dropdown">
-		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account <span class="caret"></span></a>
-		          <ul class="dropdown-menu">
-		            <li><a href="#">Profile</a></li>
-		            <li><a href="#">Settings</a></li>
-		            <li role="separator" class="divider"></li>
-		            <li><a href="#">Log out</a></li>
-		          </ul>
-		        </li>
-		        <li><a href="../navbar-static-top/">Admin Panel</a></li>
-		      </ul>
-		    </div><!--/.nav-collapse -->
-		  </div>
-		</nav>
+	<body>
+	<!-- Fixed navbar -->
+	<nav class="navbar navbar-default navbar-static-top">
+	  <div class="container">
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="/">Grade Grabber</a>
+	    </div>
+	    <div id="navbar" class="navbar-collapse collapse">
+	      <ul class="nav navbar-nav">
+	        <li class="active"><a href="/">Home</a></li>
+	        <li><a href="#about">About</a></li>
+	      </ul>
+	      <ul class="nav navbar-nav navbar-right">
+	        <li class="dropdown">
+	          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account <span class="caret"></span></a>
+	          <ul class="dropdown-menu">
+	            <li><a href="#">Profile</a></li>
+	            <li><a href="#">Settings</a></li>
+	            <li role="separator" class="divider"></li>
+	            <li><a href="#">Log out</a></li>
+	          </ul>
+	        </li>
+	        <li><a href="../navbar-static-top/">Admin Panel</a></li>
+	      </ul>
+	    </div><!--/.nav-collapse -->
+	  </div>
+	</nav>
 
-		<div>
-		{% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
-				<ul class=flashes>
-				{% for category, message in messages %}
-					{% if category == 'message' %}
-						<div class="alert alert-warning" role="alert">
-					{% else %}
-						<div class="alert alert-danger" role="alert">
-					{% endif %}
-							<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-							{{message}}
-						</div>
-				{% endfor %}
-			{% endif %}
-		{% endwith %}
-		</div>	
+	<div>
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			<ul class=flashes>
+			{% for category, message in messages %}
+				{% if category == 'message' %}
+					<div class="alert alert-warning" role="alert">
+				{% else %}
+					<div class="alert alert-danger" role="alert">
+				{% endif %}
+						<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+						{{message}}
+					</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+	</div>
 
-    {% block main %}
-    	{% block content %}
-    	{% endblock %}
-  	{% endblock %}
 
-	  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	{% block body %}{% endblock %}
 
-	  <!-- Latest compiled and minified JavaScript -->
-	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-	{% endblock %}
+
+	</body>
 </html>
