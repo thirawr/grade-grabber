@@ -67,16 +67,22 @@ def get_all_s_ids(subject, number):
 		results = cursor.fetchall()
 	return results
 
+<<<<<<< Updated upstream
 def get_aggs_from_subj_num(subject, number):
 	if subject == "" or number == "":
 		return None
 
 	query = """SELECT c_id FROM courses WHERE subject = (%s) AND course_number = (%s)"""
+=======
+def get_c_id_from_subj_num(subject, number):
+	query = """SELECT c_id FROM courses WHERE subject = (%s) AND number = (%s)"""
+>>>>>>> Stashed changes
 	args = (subject, number)
 
 	with db_connection as cursor:
 		cursor.execute(query, args)
 		results = cursor.fetchone()
+<<<<<<< Updated upstream
 		if results is None:
 			return None
 		c_id = results[0]
@@ -103,6 +109,10 @@ def get_semesters_from_c_id(c_id):
 	return results
 
 
+=======
+	return results
+
+>>>>>>> Stashed changes
 #Deprecated - phase this function out
 def query_by_crn_term(crn, term):
 	with db_connection as cursor:
