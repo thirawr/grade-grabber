@@ -3,6 +3,8 @@ from flaskext.mysql import MySQL
 
 from cred import Cred
 
+from string import ascii_lowercase, ascii_uppercase
+
 
 app = Flask(__name__)
 app.secret_key = 'i_really_love_cookies'
@@ -75,14 +77,13 @@ def get_aggs_from_subj_num(subject, number):
 	with db_connection as cursor:
 		cursor.execute(query, args)
 		results = cursor.fetchone()
+		if results is None:
+			return None
 		c_id = results[0]
 		query = """SELECT * FROM grade_aggregates WHERE c_id = (%s)"""
 		cursor.execute(query, [c_id])
 		results = cursor.fetchone()
 
-	if len(results) == 0:
-		return None
-	else:
 		return results
 
 def get_semesters_from_c_id(c_id):
@@ -155,6 +156,28 @@ def record_is_duplicate(crn, raw_term, section):
 		return True
 	else:
 		return False
+
+#takes SELECT * FROM grade_aggregates output
+#returns aggregates counts of letter grades
+#grades_viz = [['A+', #], ['A', #]...]
+def prep_aggs_row_for_viz(grades_row):
+	grades_viz = [["A+", int(grades_row[5])],
+				["A", int(grades_row[6])],
+				["A-", int(grades_row[7])],
+				["B+", int(grades_row[8])],
+				["B", int(grades_row[9])],
+				["B-", int(grades_row[10])],
+				["C+", int(grades_row[11])],
+				["C", int(grades_row[12])],
+				["C-", int(grades_row[13])],
+				["D+", int(grades_row[14])],
+				["D", int(grades_row[15])],
+				["D-", int(grades_row[16])],
+				["F", int(grades_row[17])],
+				["W", int(grades_row[18])]]
+
+	return grades_viz
+
 
 #Record is a dictionary of values:
 #[Subject, Course#, Title, CRN, Term, Average GPA, A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F]
@@ -234,11 +257,16 @@ def front():
 		subj = ""
 		num = ""
 
+
+
 		for char in query:
 			if char is ' ':
 				continue
 			elif char in ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'):
 				num += char
+			elif char not in ascii_lowercase and char not in ascii_uppercase:
+				flash("Invalid input included in search: " + char, "message")
+				return render_template('index.html')
 			else:
 				subj += char
 
@@ -246,16 +274,18 @@ def front():
 
 		results = get_aggs_from_subj_num(subj, num)
 		# print results
+		# print barData
 
 
 		if results is None:
 			flash('Course does not exist!', 'alert')
 			return render_template('index.html')
 		else:
+			barData = prep_aggs_row_for_viz(results)
 			className = results[1] + str(results[2]) + ": " + results[3]
 			tableResults = results[4:]
 			semDetails = get_semesters_from_c_id(results[0])
-			return render_template('query.html', className = className, results=tableResults, semDetails = semDetails)
+			return render_template('query.html', className = className, results=tableResults, semDetails = semDetails, barData = barData)
 
 		
 
