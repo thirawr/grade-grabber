@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container-fluid">
-	<div class="row-fluid">
+	<div class="row">
 		<div class="col-md-12">
 			<h1>{{className}}</h1>
 		</div>
@@ -10,11 +10,11 @@
 
 <!-- 	<h3>Overall</h3>-->
 <div class="container-fluid">
-		<div class="row-fluid">
+		<div class="row">
 		{% if barData %}
-			<div class="col-md-6" id="barFrame"></div>
+			<div class="col-sm-6" id="barFrame"></div>
 
-			<div class="col-md-4">
+			<div class="col-sm-4">
 				<h3>GPA</h3>
 				<p>The average grade of <strong>{{shortName}}</strong> from {{semDetails[semDetails | length - 1][0]}} to {{semDetails[0][0]}} is <strong>{{'%.2f' % overall_grades[4]}}</strong>.  </p> 
 				<h3>Foo</h3>
@@ -22,18 +22,18 @@
 				<h3>Bar</h3>
 				<p>Lorem ipsum blah blah blah blah.</p>
 			</div>
-			<div class="col-md-2"></div>
+			<div class="col-sm-2"></div>
 		</div>
 </div>
-<div class="container">
-	<div class="row-fluid">
-		<div class="col-md-6" id="lineFrame"></div>
-		<div class="col-md-6"></div>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-6" id="lineFrame"></div>
+		<div class="col-sm-6"></div>
 	</div>
 </div>
 		{% else %}
-<div class="container">
-	<div class="row-fluid">
+<div class="container-fluid">
+	<div class="row">
 		<div class="col-md-12">
 			<p>Sorry, we weren't given grades for this course. Read about how we requested this data <a href="/about">here.</a></p>
 		</div>
