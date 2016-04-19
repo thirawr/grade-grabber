@@ -43,8 +43,9 @@
 </div>
 
 <div class="container-fluid">
-<div class="col-md-12">
-	<h3>Semester Details:</h3>
+    <div class="col-md-12">
+    	<h3>Semester Details:</h3>
+    </div>
 </div>
 	<div class="table-responsive">
 		<table class="table table-hover">
@@ -75,180 +76,183 @@
 			</tr>	
 			{% endfor %}
 		</table>
-	</div>
-</div>
-<script type="text/javascript">
-    var barGrades = {{barData|safe}};
-    var barW = 400;
-    var barH = 350;
-    // var barPadding = 5;
+<!-- 	</div>
+ --></div>
 
-    var lineW = 400;
-    var lineH = 350;
+{% if barData %}
+    <script type="text/javascript">
+        var barGrades = {{barData|safe}};
+        var barW = 400;
+        var barH = 350;
+        // var barPadding = 5;
 
-    if (barGrades){
-        renderBar(barGrades, barW, barH);}
-    
-    renderLine(null, lineW, lineH);
+        var lineW = 400;
+        var lineH = 350;
 
-    function renderBar(grade, w, h) {
-        var margin = { top: 40, right: 20, bottom: 20, left: 40 },
-        width = w - margin.left - margin.right,
-        height = h - margin.top - margin.bottom;
+        if (barGrades){
+            renderBar(barGrades, barW, barH);}
+        
+        renderLine(null, lineW, lineH);
 
-        var x = d3.scale.ordinal().rangeRoundBands([0, width], .1);
+        function renderBar(grade, w, h) {
+            var margin = { top: 40, right: 20, bottom: 20, left: 40 },
+            width = w - margin.left - margin.right,
+            height = h - margin.top - margin.bottom;
 
-        var y = d3.scale.linear().range([height, 0]);
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], .1);
 
-        var xAxis = d3.svg.axis().scale(x).orient("bottom");
-        var yAxis = d3.svg.axis().scale(y).orient("left");
+            var y = d3.scale.linear().range([height, 0]);
 
-        var svg = d3.select("#barFrame").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            var xAxis = d3.svg.axis().scale(x).orient("bottom");
+            var yAxis = d3.svg.axis().scale(y).orient("left");
 
-        x.domain(grade.map(function(d) { return d[0]; }));
-        y.domain([0, d3.max(grade, function(d) { return d[1]; })]);
+            var svg = d3.select("#barFrame").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
+            x.domain(grade.map(function(d) { return d[0]; }));
+            y.domain([0, d3.max(grade, function(d) { return d[1]; })]);
 
-        svg.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-        .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", ".71em")
-            .style("text-anchor", "end")
-            .text("Count")
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
 
-        svg.selectAll(".bar")
-            .data(grade)
-        .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", function(d) { return x(d[0]); })
-            .attr("width", x.rangeBand())
-            .attr("y", function(d){ return y(d[1]); })
-            .attr("height", function(d) {return height - y(d[1]); });
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+            .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Count")
 
-        d3.select("#barFrame").attr("align", "center");
+            svg.selectAll(".bar")
+                .data(grade)
+            .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return x(d[0]); })
+                .attr("width", x.rangeBand())
+                .attr("y", function(d){ return y(d[1]); })
+                .attr("height", function(d) {return height - y(d[1]); });
 
-        function type(d){
-            d[1] = +d[1];
-            return d;
+            d3.select("#barFrame").attr("align", "center");
+
+            function type(d){
+                d[1] = +d[1];
+                return d;
+            }
         }
-    }
 
-    function renderLine(gpa_list, w, h){
-    	var data = [1, 2, 3, 4, 5, 6];
-
-
-    	var margin = {
-    			top: 30,
-    			bottom: 30,
-    			right: 30,
-    			left: 30
-    		};
+        function renderLine(gpa_list, w, h){
+        	var data = [1, 2, 3, 4, 5, 6];
 
 
-    	var width = w - margin.left - margin.right,
-    		height = h - margin.top - margin.bottom;
-
-    	var xScale = d3.scale.linear()
-    		.domain([0, data.length])
-    		.range([0, width]);
-
-    	var yScale = d3.scale.linear()
-    		.domain([0, 10])
-    		.range([height, 0]);
-
-    	var line = d3.svg.line()
-    		// .interpolate("basis")
-    		.x(function(d, i) {return xScale(i); })
-    		.y(function(d) {return yScale(d); });
-    		//.interpolate("basis");
-
-    	var svg = d3.select("#lineFrame").append("svg")
-    		.attr("width", width + margin.left + margin.right)
-    		.attr("height", height + margin.top + margin.bottom)
-    		.append("g")
-    			.attr("transform", "translate(" + margin.left + ", " + margin.top +")");
-
-    	xScale.domain(d3.extent(data, function(d, i) {return i; }));
-    	yScale.domain(d3.extent(data, function(d) {return d; }));
+        	var margin = {
+        			top: 30,
+        			bottom: 30,
+        			right: 30,
+        			left: 30
+        		};
 
 
-    	var xAxis = d3.svg.axis()
-    		.scale(xScale)
-    		.orient("bottom");
+        	var width = w - margin.left - margin.right,
+        		height = h - margin.top - margin.bottom;
 
-    	var yAxis = d3.svg.axis()
-    		.scale(yScale)
-    		.orient("left");
+        	var xScale = d3.scale.linear()
+        		.domain([0, data.length])
+        		.range([0, width]);
 
-    	svg.append("g")
-    		.attr("class","x axis")
-    		.attr("transform", "translate(0," + (height) + ")")
-    		.call(xAxis)
-    	.append("text")
-    		.attr("x", width)
-    		.attr("y", -10)
-    		.attr("dy", ".71em")
-    		.style("text-anchor", "end")
-    		.text("Term");
+        	var yScale = d3.scale.linear()
+        		.domain([0, 10])
+        		.range([height, 0]);
 
-    	svg.append("g")
-    		.attr("class","y axis")
-    		.call(yAxis)
-    	.append("text")
-    		.attr("transform", "rotate(-90)")
-    		.attr("y", 6)
-    		.attr("dy", ".71em")
-    		.style("text-anchor", "end")
-    		.text("GPA");
+        	var line = d3.svg.line()
+        		// .interpolate("basis")
+        		.x(function(d, i) {return xScale(i); })
+        		.y(function(d) {return yScale(d); });
+        		//.interpolate("basis");
 
-    	var line = svg.append("g")
-    		.append("path")
-    		.attr("d", line(data))
-    		.attr("class", "line");
+        	var svg = d3.select("#lineFrame").append("svg")
+        		.attr("width", width + margin.left + margin.right)
+        		.attr("height", height + margin.top + margin.bottom)
+        		.append("g")
+        			.attr("transform", "translate(" + margin.left + ", " + margin.top +")");
 
-    	// d3.select("#lineFrame").attr("align", "center");
-
-    	// svg.selectAll("path").data(data)
-    	// 	.enter().append("path")
-    	// 	.attr("d", line(data));
-
-    	// svg.append("path")
-    	// 	.attr("class", "line")
-    	// 	.attr("d", line(data));
-
-    	// svg.append("path")
-    	// 	.attr("d", lineGen(data)) //data is hardcoded into this application
-    	// 	.attr("stroke", "green")
-    	// 	.attr("stroke-width", 2)
-    	// 	.attr("fill", "none");
-
-    	function type(d){
-    		d.gpa = +d.gpa
-    		return d;
-    	}
-
-    }
-
-    // var chart = $("#barFrame"),
-    //     aspect = chart.width() / chart.height(),
-    //     container = chart.parent();
-    // $(window).on("resize", function() {
-    //     var targetWidth = container.width();
-    //     chart.attr("width", targetWidth);
-    //     chart.attr("height", Math.round(targetWidth / aspect));
-    // }).trigger("resize");
+        	xScale.domain(d3.extent(data, function(d, i) {return i; }));
+        	yScale.domain(d3.extent(data, function(d) {return d; }));
 
 
-</script>    
+        	var xAxis = d3.svg.axis()
+        		.scale(xScale)
+        		.orient("bottom");
+
+        	var yAxis = d3.svg.axis()
+        		.scale(yScale)
+        		.orient("left");
+
+        	svg.append("g")
+        		.attr("class","x axis")
+        		.attr("transform", "translate(0," + (height) + ")")
+        		.call(xAxis)
+        	.append("text")
+        		.attr("x", width)
+        		.attr("y", -10)
+        		.attr("dy", ".71em")
+        		.style("text-anchor", "end")
+        		.text("Term");
+
+        	svg.append("g")
+        		.attr("class","y axis")
+        		.call(yAxis)
+        	.append("text")
+        		.attr("transform", "rotate(-90)")
+        		.attr("y", 6)
+        		.attr("dy", ".71em")
+        		.style("text-anchor", "end")
+        		.text("GPA");
+
+        	var line = svg.append("g")
+        		.append("path")
+        		.attr("d", line(data))
+        		.attr("class", "line");
+
+        	// d3.select("#lineFrame").attr("align", "center");
+
+        	// svg.selectAll("path").data(data)
+        	// 	.enter().append("path")
+        	// 	.attr("d", line(data));
+
+        	// svg.append("path")
+        	// 	.attr("class", "line")
+        	// 	.attr("d", line(data));
+
+        	// svg.append("path")
+        	// 	.attr("d", lineGen(data)) //data is hardcoded into this application
+        	// 	.attr("stroke", "green")
+        	// 	.attr("stroke-width", 2)
+        	// 	.attr("fill", "none");
+
+        	function type(d){
+        		d.gpa = +d.gpa
+        		return d;
+        	}
+
+        }
+
+        // var chart = $("#barFrame"),
+        //     aspect = chart.width() / chart.height(),
+        //     container = chart.parent();
+        // $(window).on("resize", function() {
+        //     var targetWidth = container.width();
+        //     chart.attr("width", targetWidth);
+        //     chart.attr("height", Math.round(targetWidth / aspect));
+        // }).trigger("resize");
+
+
+    </script>
+{% endif %}    
 {% endblock %}
