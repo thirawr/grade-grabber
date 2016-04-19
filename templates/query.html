@@ -1,11 +1,56 @@
 {% extends "layout.html" %}
 {% block body %}
-<h1>{{className}}</h1>
 <div class="container-fluid">
-	<h3>Aggregates:</h3>
-		<div id="barFrame"></div>
-		<!-- <table class="table table-hover">
+	<div class="row-fluid">
+		<div class="col-md-12">
+			<h1>{{className}}</h1>
+		</div>
+	</div>
+</div>
+
+<!-- 	<h3>Overall</h3>-->
+<div class="container-fluid">
+		<div class="row-fluid">
+		{% if barData %}
+			<div class="col-md-6" id="barFrame"></div>
+
+			<div class="col-md-4">
+				<h3>GPA</h3>
+				<p>The average grade of <strong>{{shortName}}</strong> from {{semDetails[semDetails | length - 1][0]}} to {{semDetails[0][0]}} is <strong>{{'%.2f' % overall_grades[4]}}</strong>.  </p> 
+				<h3>Foo</h3>
+				<p>Lorem ipsum blah blah blah blah.</p>
+				<h3>Bar</h3>
+				<p>Lorem ipsum blah blah blah blah.</p>
+			</div>
+			<div class="col-md-2"></div>
+		</div>
+</div>
+<div class="container">
+	<div class="row-fluid">
+		<div class="col-md-6" id="lineFrame"></div>
+		<div class="col-md-6"></div>
+	</div>
+</div>
+		{% else %}
+<div class="container">
+	<div class="row-fluid">
+		<div class="col-md-12">
+			<p>Sorry, we weren't given grades for this course. Read about how we requested this data <a href="/about">here.</a></p>
+		</div>
+	</div>
+</div>
+		{% endif %}
+</div>
+
+<div class="container-fluid">
+<div class="col-md-12">
+	<h3>Semester Details:</h3>
+</div>
+	<div class="table-responsive">
+		<table class="table table-hover">
 			<tr>
+				<td>Term</td>
+				<td>Instructor</td>
 				<td>Average GPA</td>
 				<td>A+'s</td>
 				<td>A's</td>
@@ -22,54 +67,31 @@
 				<td>F's</td>
 				<td>W's</td>
 			</tr>
+			{% for row in semDetails %}
 			<tr>
-				{% for attribute in results %}
+				{% for attribute in row %}
 				<td>{{attribute}}</td>
 				{% endfor %}
 			</tr>	
-		</table> -->
-<div class="container-fluid">
-<h3>Semester Details:</h3>
-	<table class="table table-hover">
-		<tr>
-			<td>Term</td>
-			<td>Instructor</td>
-			<td>Average GPA</td>
-			<td>A+'s</td>
-			<td>A's</td>
-			<td>A-'s</td>
-			<td>B+'s</td>
-			<td>B's</td>
-			<td>B-'s</td>
-			<td>C+'s</td>
-			<td>C's</td>
-			<td>C-'s</td>
-			<td>D+'s</td>
-			<td>D's</td>
-			<td>D-'s</td>
-			<td>F's</td>
-			<td>W's</td>
-		</tr>
-		{% for row in semDetails %}
-		<tr>
-			{% for attribute in row %}
-			<td>{{attribute}}</td>
 			{% endfor %}
-		</tr>	
-		{% endfor %}
-	</table>
+		</table>
+	</div>
 </div>
-</div>
-
 <script type="text/javascript">
-    var grades = {{barData|safe}};
-    var w = 750;
-    var h = 400;
-    var barPadding = 5;
+    var barGrades = {{barData|safe}};
+    var barW = 400;
+    var barH = 350;
+    // var barPadding = 5;
 
-    render(grades, w, h);
+    var lineW = 400;
+    var lineH = 350;
 
-    function render(grade, w, h) {
+    if (barGrades){
+        renderBar(barGrades, barW, barH);}
+    
+    renderLine(null, lineW, lineH);
+
+    function renderBar(grade, w, h) {
         var margin = { top: 40, right: 20, bottom: 20, left: 40 },
         width = w - margin.left - margin.right,
         height = h - margin.top - margin.bottom;
@@ -120,6 +142,102 @@
             d[1] = +d[1];
             return d;
         }
+    }
+
+    function renderLine(gpa_list, w, h){
+    	var data = [1, 2, 3, 4, 5, 6];
+
+
+    	var margin = {
+    			top: 30,
+    			bottom: 30,
+    			right: 30,
+    			left: 30
+    		};
+
+
+    	var width = w - margin.left - margin.right,
+    		height = h - margin.top - margin.bottom;
+
+    	var xScale = d3.scale.linear()
+    		.domain([0, data.length])
+    		.range([0, width]);
+
+    	var yScale = d3.scale.linear()
+    		.domain([0, 10])
+    		.range([height, 0]);
+
+    	var line = d3.svg.line()
+    		// .interpolate("basis")
+    		.x(function(d, i) {return xScale(i); })
+    		.y(function(d) {return yScale(d); });
+    		//.interpolate("basis");
+
+    	var svg = d3.select("#lineFrame").append("svg")
+    		.attr("width", width + margin.left + margin.right)
+    		.attr("height", height + margin.top + margin.bottom)
+    		.append("g")
+    			.attr("transform", "translate(" + margin.left + ", " + margin.top +")");
+
+    	xScale.domain(d3.extent(data, function(d, i) {return i; }));
+    	yScale.domain(d3.extent(data, function(d) {return d; }));
+
+
+    	var xAxis = d3.svg.axis()
+    		.scale(xScale)
+    		.orient("bottom");
+
+    	var yAxis = d3.svg.axis()
+    		.scale(yScale)
+    		.orient("left");
+
+    	svg.append("g")
+    		.attr("class","x axis")
+    		.attr("transform", "translate(0," + (height) + ")")
+    		.call(xAxis)
+    	.append("text")
+    		.attr("x", width)
+    		.attr("y", -10)
+    		.attr("dy", ".71em")
+    		.style("text-anchor", "end")
+    		.text("Term");
+
+    	svg.append("g")
+    		.attr("class","y axis")
+    		.call(yAxis)
+    	.append("text")
+    		.attr("transform", "rotate(-90)")
+    		.attr("y", 6)
+    		.attr("dy", ".71em")
+    		.style("text-anchor", "end")
+    		.text("GPA");
+
+    	var line = svg.append("g")
+    		.append("path")
+    		.attr("d", line(data))
+    		.attr("class", "line");
+
+    	// d3.select("#lineFrame").attr("align", "center");
+
+    	// svg.selectAll("path").data(data)
+    	// 	.enter().append("path")
+    	// 	.attr("d", line(data));
+
+    	// svg.append("path")
+    	// 	.attr("class", "line")
+    	// 	.attr("d", line(data));
+
+    	// svg.append("path")
+    	// 	.attr("d", lineGen(data)) //data is hardcoded into this application
+    	// 	.attr("stroke", "green")
+    	// 	.attr("stroke-width", 2)
+    	// 	.attr("fill", "none");
+
+    	function type(d){
+    		d.gpa = +d.gpa
+    		return d;
+    	}
+
     }
 
     // var chart = $("#barFrame"),

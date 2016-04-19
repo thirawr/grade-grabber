@@ -1,6 +1,10 @@
-table{
+/*table{
 	float: left;
 	margin-top: 30px;
+}*/
+
+h1{
+	padding: 5px;
 }
 
 .axis {
@@ -20,4 +24,20 @@ rect{
 
 rect:hover{
     fill: #A6C5DE;
+}
+
+
+path {
+	stroke: steelblue;
+	stroke-width: 1;
+	fill: none;
+}
+
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: #000;
 }

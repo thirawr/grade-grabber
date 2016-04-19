@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, url_for, abort, flash, redirect
 from flaskext.mysql import MySQL
+from json import dumps 
 
 from cred import Cred
 
@@ -17,6 +18,8 @@ app.config['MYSQL_DATABASE_HOST'] = Cred['MYSQL_DATABASE_HOST']
 
 mysql.init_app(app)
 db_connection = mysql.connect()
+
+NUMS = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 
 # def query_all():
 # 	#__entry__ handles connection into cursor
@@ -54,8 +57,6 @@ def query_grade_aggs(**c_id):
 		results = cursor.fetchall()
 
 	return results 
-
-
 
 def get_all_s_ids(subject, number):
 	query = """SELECT s.s_id FROM semesters AS s 
@@ -95,7 +96,7 @@ def get_semesters_from_c_id(c_id):
 	g.f_count, g.w_count 
 	FROM courses AS c INNER JOIN semesters AS s ON c.c_id = s.c_id
 	INNER JOIN grade_counts AS g ON s.s_id = g.s_id
-	WHERE s.c_id = (%s)"""
+	WHERE s.c_id = (%s) ORDER BY s.raw_term DESC"""
 
 	with db_connection as cursor:
 		cursor.execute(query, [c_id])
@@ -161,6 +162,11 @@ def record_is_duplicate(crn, raw_term, section):
 #returns aggregates counts of letter grades
 #grades_viz = [['A+', #], ['A', #]...]
 def prep_aggs_row_for_viz(grades_row):
+	if grades_row[5] is None:
+		#We don't have counts for this class :(
+		return None
+
+
 	grades_viz = [["A+", int(grades_row[5])],
 				["A", int(grades_row[6])],
 				["A-", int(grades_row[7])],
@@ -239,6 +245,54 @@ def delete_by_crn_term(crn, term):
 			return row
 		return None
 
+# Used for autocomplete
+# Returns a list of ["subjNum: title"] for course candidates
+def query_candidate_courses(subj, num):
+	subj = subj
+	num = num
+	query = """SELECT DISTINCT c_id, subject, course_number, title FROM courses 
+	WHERE subject = %s AND course_number = %s"""
+	args = (subj, num)
+
+	with db_connection as cursor:
+		cursor.execute(query, args)
+		results = cursor.fetchall()
+	print results
+	return results 
+
+
+
+# Returns a list of matches for term
+# of the format "SubjNum: Title"
+# @app.route("/autocomplete/<term>")
+# def autocomplete(term):
+# 	subj = ""
+# 	num = ""
+# 	for char in term:
+# 		if char in ascii_lowercase or char in ascii_uppercase:
+# 			subj += char
+# 		elif char is ' ':
+# 			continue
+# 		elif char in NUMS:
+# 			num += char
+
+# 	results = query_possible_courses(subj, num)
+# 	return dumps(results)
+
+# Returns True if multiple courses are listed under 
+# a subject number pair in courses 
+def has_multiple_courses(subj, num):
+	with db_connection as cursor:
+		query = 'SELECT COUNT(*) FROM courses WHERE subject = %s AND course_number = %s'
+		args = (subj, num)
+		cursor.execute(query, args)
+		count = cursor.fetchone()
+		count = count[0]
+	if count > 1:
+		return True
+	else:
+		return False 
+
 
 @app.route("/", methods=['GET', 'POST'])
 def front():
@@ -262,9 +316,9 @@ def front():
 		for char in query:
 			if char is ' ':
 				continue
-			elif char in ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'):
+			elif char in NUMS:
 				num += char
-			elif char not in ascii_lowercase and char not in ascii_uppercase:
+			elif char not in ascii_lowercase and char not in ascii_uppercase and char != ' ':
 				flash("Invalid input included in search: " + char, "message")
 				return render_template('index.html')
 			else:
@@ -272,20 +326,31 @@ def front():
 
 		# print num + " " + subj
 
-		results = get_aggs_from_subj_num(subj, num)
 		# print results
 		# print barData
 
-
-		if results is None:
-			flash('Course does not exist!', 'alert')
-			return render_template('index.html')
+		multipleCourses = has_multiple_courses(subj, num)
+		if multipleCourses:
+			# Return all courses on confirmation template
+			choices = query_candidate_courses(subj, num)
+			print choices
+			return render_template("confirm_course.html", choices=choices)
 		else:
-			barData = prep_aggs_row_for_viz(results)
-			className = results[1] + str(results[2]) + ": " + results[3]
-			tableResults = results[4:]
-			semDetails = get_semesters_from_c_id(results[0])
-			return render_template('query.html', className = className, results=tableResults, semDetails = semDetails, barData = barData)
+			results = get_aggs_from_subj_num(subj, num)
+
+			if results is None:
+				flash('Course does not exist!', 'alert')
+				return render_template('index.html')
+			else:
+				barData = prep_aggs_row_for_viz(results)
+				className = results[1] + str(results[2]) + ": " + results[3]
+				tableResults = results[4:]
+				overall_grades = query_grade_aggs(c_id=results[0])[0]
+				print overall_grades
+				semDetails = get_semesters_from_c_id(results[0])
+
+				return render_template('query.html', shortName = (subj + str(num)), className = className, results=tableResults, semDetails = semDetails, barData = barData, overall_grades=overall_grades)
+
 
 		
 
@@ -294,6 +359,30 @@ def front():
 # @app.route("/update", methods=['GET', 'POST'])
 # def update():
 # 	return 'Success'
+
+@app.route("/query/<c_id>")
+def show_selected_course(c_id):
+	results = query_grade_aggs(c_id=c_id)
+	results = results[0]
+	if results is None:
+		flash('Course does not exist!', 'alert')
+		return render_template('index.html')
+	else:
+		barData = prep_aggs_row_for_viz(results)
+		className = results[1] + str(results[2]) + ": " + results[3]
+		tableResults = results[4:]
+		overall_grades = query_grade_aggs(c_id=results[0])[0]
+		print overall_grades
+		semDetails = get_semesters_from_c_id(results[0])
+
+		return render_template('query.html', shortName = (results[1] + str(results[2])), className = className, results=tableResults, semDetails = semDetails, barData = barData, overall_grades=overall_grades)
+
+@app.route('/surprise')
+def show_random_course():
+	with db_connection as cursor:
+		cursor.execute('SELECT c_id FROM courses ORDER BY RAND() LIMIT 1')
+		c_id = cursor.fetchone()[0]
+	return show_selected_course(c_id)
 
 @app.route("/modify", methods=['GET', 'POST'])
 def modify():

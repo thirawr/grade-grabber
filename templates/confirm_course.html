@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container-fluid">
+	<h1>Confirm course</h1>
+		{% for course in choices %}
+			<a href="query/{{course[0]}}">
+				<h4>{{course[1]}}{{course[2]}}: {{course[3]}}</h2>
+			</a>
+		{% endfor %}
+</div>
+
+{% endblock %}
