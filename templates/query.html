@@ -14,15 +14,15 @@
 		{% if results[0] != None %}
 			<div class="col-sm-6" id="barFrame"></div>
 
-			<div class="col-sm-4">
+			<div class="col-sm-6">
 				<h3>GPA</h3>
-				<p>The average grade of <strong>{{shortName}}</strong> from {{semDetails[semDetails | length - 1][0]}} to {{semDetails[0][0]}} is <strong>{{'%.2f' % overall_grades[4]}}</strong>.  </p> 
+				<p>The overall average grade of <strong>{{shortName}}</strong> from {{semDetails[semDetails | length - 1][0]}} to {{semDetails[0][0]}} is <strong>{{'%.2f' % overall_grades[4]}}</strong>.  </p> 
 				<h3>Foo</h3>
 				<p>Lorem ipsum blah blah blah blah.</p>
 				<h3>Bar</h3>
 				<p>Lorem ipsum blah blah blah blah.</p>
 			</div>
-			<div class="col-sm-2"></div>
+			<!-- <div class="col-sm-2"></div> -->
 		</div>
 </div>
 <div class="container-fluid">
@@ -155,7 +155,7 @@
                 .style("font-family", "sans-serif")
                 .text("Overall Grade Distribution");
 
-            d3.select("#barFrame").attr("align", "center");
+            // d3.select("#barFrame").attr("align", "center");
 
             function type(d){
                 d[1] = +d[1];
@@ -170,7 +170,7 @@
 
         	var margin = {
         			top: 40,
-        			bottom: 50,
+        			bottom: 20,
         			right: 20,
         			left: 40
         		};
@@ -263,7 +263,7 @@
                 .style("font-family", "sans-serif")
                 .text("Average Grade by Term");
 
-        	d3.select("#lineFrame").attr("align", "center");
+        	// d3.select("#lineFrame").attr("align", "center");
 
         	// svg.selectAll("path").data(data)
         	// 	.enter().append("path")
@@ -287,7 +287,7 @@
         }
 
         function renderInstructorBar(data, w, h) {
-            var margin = { top: 40, right: 50, bottom: 50, left: 40 },
+            var margin = { top: 40, right: 20, bottom: 20, left: 40 },
             width = w - margin.left - margin.right,
             height = h - margin.top - margin.bottom;
 
@@ -297,7 +297,7 @@
 
             var y = d3.scale.linear().range([height, 0]);
 
-            var xAxis = d3.svg.axis().scale(x).orient("bottom");
+            var xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat("");
             var yAxis = d3.svg.axis().scale(y).orient("left");
 
             var svg = d3.select("#instrFrame").append("svg")
@@ -305,6 +305,20 @@
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var tip = d3.tip()
+              .attr('class', 'd3-tip')
+              // .offset([-10, 0])
+              .html(function(d){
+                var text = d[0] + ": "
+                var grade = parseFloat(Math.round(d[1] * 100) / 100).toFixed(2);
+
+                return text + grade;
+              });
+
+            svg.call(tip);
+
+
 
             x.domain(data.map(function(d) { return d[0]; }));
             y.domain([0, d3.max(data, function(d) { return d[1]; })]);
@@ -314,9 +328,9 @@
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis)
                 .selectAll("text")
-                  .attr("y", 0)
-                  .attr("x", 9)
-                  .attr("transform", "rotate(20)")
+                  .attr("y", 10)
+                  .attr("x", -20)
+                  .attr("transform", "rotate(15)")
                   .style("text-anchor", "start")
                 .append("text")
                     .attr("x", width)
@@ -343,7 +357,9 @@
                     .attr("x", function(d) { return x(d[0]); })
                     .attr("width", x.rangeBand())
                     .attr("y", function(d){ return y(d[1]); })
-                    .attr("height", function(d) {return height - y(d[1]); });
+                    .attr("height", function(d) {return height - y(d[1]); })
+                .on("mouseover", tip.show)
+                .on("mouseout", tip.hide);
             }
             else{
                 svg.append("text")
@@ -363,7 +379,7 @@
                 .style("font-family", "sans-serif")
                 .text("Average Grade by Instructor");
 
-                d3.select("#barFrame").attr("align", "center");
+                // d3.select("#barFrame").attr("align", "center");
 
             function type(d){
                 d[1] = +d[1];
