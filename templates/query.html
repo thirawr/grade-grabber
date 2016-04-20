@@ -11,7 +11,7 @@
 <!-- 	<h3>Overall</h3>-->
 <div class="container-fluid">
 		<div class="row">
-		{% if barData %}
+		{% if results[0] != None %}
 			<div class="col-sm-6" id="barFrame"></div>
 
 			<div class="col-sm-4">
@@ -28,7 +28,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-sm-6" id="lineFrame"></div>
-		<div class="col-sm-6"></div>
+		<div class="col-sm-6" id="instrFrame"></div>
 	</div>
 </div>
 		{% else %}
@@ -79,20 +79,28 @@
 <!-- 	</div>
  --></div>
 
-{% if barData %}
+{% if vizData %}
     <script type="text/javascript">
-        var barGrades = {{barData|safe}};
+        var barGrades = {{vizData[0]|safe}};
         var barW = 400;
         var barH = 350;
         // var barPadding = 5;
+        // console.log(barGrades);
+
+        if (barGrades){
+            renderBar(barGrades, barW, barH);
+        }
 
         var lineW = 400;
         var lineH = 350;
-
-        if (barGrades){
-            renderBar(barGrades, barW, barH);}
         
-        renderLine(null, lineW, lineH);
+        var lineGrades = {{vizData[1] | safe}}
+        renderLine(lineGrades, lineW, lineH);
+
+        var instrData = {{vizData[2] | safe}}
+        var instrW = 400;
+        var instrH = 350;
+        renderInstructorBar(instrData, instrW, instrH);
 
         function renderBar(grade, w, h) {
             var margin = { top: 40, right: 20, bottom: 20, left: 40 },
@@ -125,7 +133,7 @@
                 .call(yAxis)
             .append("text")
                 .attr("transform", "rotate(-90)")
-                .attr("y", 6)
+                .attr("y", 3)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
                 .text("Count")
@@ -139,6 +147,14 @@
                 .attr("y", function(d){ return y(d[1]); })
                 .attr("height", function(d) {return height - y(d[1]); });
 
+            svg.append("text")
+                .attr("x", (width / 2))
+                .attr("y", 0 - (margin.top / 2))
+                .attr("text-anchor", "middle")
+                .style("font-size", "16px")
+                .style("font-family", "sans-serif")
+                .text("Overall Grade Distribution");
+
             d3.select("#barFrame").attr("align", "center");
 
             function type(d){
@@ -148,32 +164,37 @@
         }
 
         function renderLine(gpa_list, w, h){
-        	var data = [1, 2, 3, 4, 5, 6];
+        	var data = gpa_list
+            // console.log(data);
 
 
         	var margin = {
-        			top: 30,
-        			bottom: 30,
-        			right: 30,
-        			left: 30
+        			top: 40,
+        			bottom: 50,
+        			right: 20,
+        			left: 40
         		};
 
 
         	var width = w - margin.left - margin.right,
         		height = h - margin.top - margin.bottom;
 
-        	var xScale = d3.scale.linear()
-        		.domain([0, data.length])
-        		.range([0, width]);
+            var canDraw = data.length > 2;
+
+        	// var xScale = d3.scale.ordinal()
+        		// .rangeRoundBands([0, width]);
+
+            var xScale = d3.scale.ordinal()
+                .rangeRoundBands([0, width]);
 
         	var yScale = d3.scale.linear()
-        		.domain([0, 10])
-        		.range([height, 0]);
+        		.range([height, 0])
+                .domain([1, 4]);
 
         	var line = d3.svg.line()
         		// .interpolate("basis")
-        		.x(function(d, i) {return xScale(i); })
-        		.y(function(d) {return yScale(d); });
+        		.x(function(d) {return xScale(d[0]); })
+        		.y(function(d) {return yScale(d[1]); });
         		//.interpolate("basis");
 
         	var svg = d3.select("#lineFrame").append("svg")
@@ -182,8 +203,10 @@
         		.append("g")
         			.attr("transform", "translate(" + margin.left + ", " + margin.top +")");
 
-        	xScale.domain(d3.extent(data, function(d, i) {return i; }));
-        	yScale.domain(d3.extent(data, function(d) {return d; }));
+        	xScale.domain(data.map(function(d) { return d[0] }));
+        	// yScale.domain(data.map(function(d) { return d[1]; }));
+            // xScale.domain(d3.extent(data, function(d) { return d[0]; }));
+            // yScale.domain(d3.extent(data, function(d) { return d[1]; }));
 
 
         	var xAxis = d3.svg.axis()
@@ -210,17 +233,37 @@
         		.call(yAxis)
         	.append("text")
         		.attr("transform", "rotate(-90)")
-        		.attr("y", 6)
+        		.attr("y", 3)
         		.attr("dy", ".71em")
         		.style("text-anchor", "end")
         		.text("GPA");
 
-        	var line = svg.append("g")
-        		.append("path")
-        		.attr("d", line(data))
-        		.attr("class", "line");
+            if (canDraw){
+                svg.append("g")
+                    .append("path")
+                    .attr("d", line(data))
+                    .attr("class", "line");
+            }
+            else{
+                svg.append("text")
+                    .attr("x", (width / 2))
+                    .attr("y", (height/2))
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "12px")
+                    .style("font-family", "sans-serif")
+                    .text("Sorry, we don't have enough data to chart this.")
+            }
 
-        	// d3.select("#lineFrame").attr("align", "center");
+
+            svg.append("text")
+                .attr("x", (width / 2))
+                .attr("y", 0 - (margin.top / 2))
+                .attr("text-anchor", "middle")
+                .style("font-size", "16px")
+                .style("font-family", "sans-serif")
+                .text("Average Grade by Term");
+
+        	d3.select("#lineFrame").attr("align", "center");
 
         	// svg.selectAll("path").data(data)
         	// 	.enter().append("path")
@@ -242,6 +285,92 @@
         	}
 
         }
+
+        function renderInstructorBar(data, w, h) {
+            var margin = { top: 40, right: 50, bottom: 50, left: 40 },
+            width = w - margin.left - margin.right,
+            height = h - margin.top - margin.bottom;
+
+            var canChart = data.length > 1;
+
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], .2);
+
+            var y = d3.scale.linear().range([height, 0]);
+
+            var xAxis = d3.svg.axis().scale(x).orient("bottom");
+            var yAxis = d3.svg.axis().scale(y).orient("left");
+
+            var svg = d3.select("#instrFrame").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            x.domain(data.map(function(d) { return d[0]; }));
+            y.domain([0, d3.max(data, function(d) { return d[1]; })]);
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .selectAll("text")
+                  .attr("y", 0)
+                  .attr("x", 9)
+                  .attr("transform", "rotate(20)")
+                  .style("text-anchor", "start")
+                .append("text")
+                    .attr("x", width)
+                    .attr("y", 10)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("Instructor");
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+            .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 3)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Average Grade")
+
+            if(canChart){
+                svg.selectAll(".bar")
+                    .data(data)
+                .enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", function(d) { return x(d[0]); })
+                    .attr("width", x.rangeBand())
+                    .attr("y", function(d){ return y(d[1]); })
+                    .attr("height", function(d) {return height - y(d[1]); });
+            }
+            else{
+                svg.append("text")
+                    .attr("x", (width / 2))
+                    .attr("y", (height/2))
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "12px")
+                    .style("font-family", "sans-serif")
+                    .text("Sorry, we don't have enough data to chart this.")
+            }
+
+            svg.append("text")
+                .attr("x", (width / 2))
+                .attr("y", 0 - (margin.top / 2))
+                .attr("text-anchor", "middle")
+                .style("font-size", "16px")
+                .style("font-family", "sans-serif")
+                .text("Average Grade by Instructor");
+
+                d3.select("#barFrame").attr("align", "center");
+
+            function type(d){
+                d[1] = +d[1];
+                return d;
+            }
+        }
+
 
         // var chart = $("#barFrame"),
         //     aspect = chart.width() / chart.height(),

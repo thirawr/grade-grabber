@@ -21,27 +21,7 @@ db_connection = mysql.connect()
 
 NUMS = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 
-# def query_all():
-# 	#__entry__ handles connection into cursor
-# 	with db_connection as cursor:
-# 		query = """SELECT s.crn, s.raw_term, c.subject, c.course_number, c.title,
-# 		g.average_gpa, g.a_plus_count, g.a_count, g.a_minus_count,
-# 		g.b_plus_count, g.b_count, g.b_minus_count,
-# 		g.c_plus_count, g.c_count, g.c_minus_count,
-# 		g.d_plus_count, g.d_count, g.d_minus_count,
-# 		g.f_count, s.instructor, s.section
-# 		FROM courses AS c
-# 		INNER JOIN semesters AS s ON c.c_id = s.c_id
-# 		INNER JOIN grade_counts AS g ON s.s_id = g.s_id"""
-# 		cursor.execute(query)
-# 		results = cursor.fetchall()
-# 	return results
 
-# c_id is an optional paramater
-# default behavior queries grade aggregates
-# for all distinct courses
-# when c_id is applied, queries only for one course
-# for c_id search, call query_grade_aggs(c_id=#)
 def query_grade_aggs(**c_id):
 	query = 'SELECT * FROM grade_aggregates;'
 	arg = None
@@ -81,11 +61,12 @@ def get_aggs_from_subj_num(subject, number):
 		if results is None:
 			return None
 		c_id = results[0]
-		query = """SELECT * FROM grade_aggregates WHERE c_id = (%s)"""
-		cursor.execute(query, [c_id])
-		results = cursor.fetchone()
+		# query = """SELECT * FROM grade_aggregates WHERE c_id = (%s)"""
+		# cursor.execute(query, [c_id])
+		# results = cursor.fetchone()
+		results = query_grade_aggs(c_id = c_id)
 
-		return results
+		return results[0]
 
 def get_semesters_from_c_id(c_id):
 	query = """SELECT
@@ -161,7 +142,7 @@ def record_is_duplicate(crn, raw_term, section):
 #takes SELECT * FROM grade_aggregates output
 #returns aggregates counts of letter grades
 #grades_viz = [['A+', #], ['A', #]...]
-def prep_aggs_row_for_viz(grades_row):
+def prep_bar_graph_data(grades_row):
 	if grades_row[5] is None:
 		#We don't have counts for this class :(
 		return None
@@ -183,6 +164,51 @@ def prep_aggs_row_for_viz(grades_row):
 				["W", int(grades_row[18])]]
 
 	return grades_viz
+
+def prep_line_graph_data(c_id):
+	query = """SELECT s.parsed_term, AVG(average_gpa)
+	FROM grade_counts AS g INNER JOIN semesters AS s
+	ON g.s_id = s.s_id
+	WHERE s.c_id = %s  
+	GROUP BY s.parsed_term
+	ORDER BY s.raw_term ASC"""
+
+	with db_connection as cursor:
+		cursor.execute(query, [c_id])
+		results = cursor.fetchall()
+
+	if results == ():
+		return None
+
+	viz_map_list = []
+
+	for row in results:
+		if row[0] != None and row[1] != None:
+			viz_map_list.append([str(row[0]), float(row[1])])
+
+	return viz_map_list
+
+def prep_instructor_gpa_data(c_id):
+	query = """SELECT s.instructor, AVG(g.average_gpa)
+	FROM semesters AS s INNER JOIN grade_counts AS g
+	ON s.s_id = g.s_id WHERE s.c_id = %s
+	GROUP BY instructor;"""
+
+	with db_connection as cursor:
+		cursor.execute(query, [c_id])
+		results = cursor.fetchall()
+
+	if results == ():
+		return None
+
+	viz_map_list = []
+
+	for row in results:
+		if row[0] != None and row[1] != None:
+			viz_map_list.append([str(row[0]), str(row[1])])
+
+	return viz_map_list
+
 
 
 #Record is a dictionary of values:
@@ -260,25 +286,6 @@ def query_candidate_courses(subj, num):
 	print results
 	return results 
 
-
-
-# Returns a list of matches for term
-# of the format "SubjNum: Title"
-# @app.route("/autocomplete/<term>")
-# def autocomplete(term):
-# 	subj = ""
-# 	num = ""
-# 	for char in term:
-# 		if char in ascii_lowercase or char in ascii_uppercase:
-# 			subj += char
-# 		elif char is ' ':
-# 			continue
-# 		elif char in NUMS:
-# 			num += char
-
-# 	results = query_possible_courses(subj, num)
-# 	return dumps(results)
-
 # Returns True if multiple courses are listed under 
 # a subject number pair in courses 
 def has_multiple_courses(subj, num):
@@ -333,33 +340,21 @@ def front():
 		if multipleCourses:
 			# Return all courses on confirmation template
 			choices = query_candidate_courses(subj, num)
-			print choices
+			# print choices
 			return render_template("confirm_course.html", choices=choices)
 		else:
-			results = get_aggs_from_subj_num(subj, num)
-
-			if results is None:
+			c_id_tuple = query_candidate_courses(subj, num)
+			print c_id_tuple
+			if c_id_tuple == ():
 				flash('Course does not exist!', 'alert')
 				return render_template('index.html')
 			else:
-				barData = prep_aggs_row_for_viz(results)
-				className = results[1] + str(results[2]) + ": " + results[3]
-				tableResults = results[4:]
-				overall_grades = query_grade_aggs(c_id=results[0])[0]
-				print overall_grades
-				semDetails = get_semesters_from_c_id(results[0])
+				c_id = c_id_tuple[0][0]
 
-				return render_template('query.html', shortName = (subj + str(num)), className = className, results=tableResults, semDetails = semDetails, barData = barData, overall_grades=overall_grades)
-
-
-		
-
-	#return render_template('index.html')
-
-# @app.route("/update", methods=['GET', 'POST'])
-# def update():
-# 	return 'Success'
-
+			results = query_grade_aggs(c_id=c_id)
+			# results = get_aggs_from_subj_num(subj, num)
+			return show_selected_course(c_id)
+			
 @app.route("/query/<c_id>")
 def show_selected_course(c_id):
 	results = query_grade_aggs(c_id=c_id)
@@ -368,14 +363,27 @@ def show_selected_course(c_id):
 		flash('Course does not exist!', 'alert')
 		return render_template('index.html')
 	else:
-		barData = prep_aggs_row_for_viz(results)
+		# barData = prep_bar_graph_data(results)
+		# lineData = prep_line_graph_data(c_id)
+
+		# if barData == None and lineData == None:
+		# 	vizData = None
+		# else:
+		# 	vizData = [barData, lineData]
+
 		className = results[1] + str(results[2]) + ": " + results[3]
 		tableResults = results[4:]
+
+		if tableResults[0] != None:
+			vizData = [prep_bar_graph_data(results), prep_line_graph_data(c_id), prep_instructor_gpa_data(c_id)]
+		else:
+			vizData = None
+
 		overall_grades = query_grade_aggs(c_id=results[0])[0]
 		print overall_grades
 		semDetails = get_semesters_from_c_id(results[0])
 
-		return render_template('query.html', shortName = (results[1] + str(results[2])), className = className, results=tableResults, semDetails = semDetails, barData = barData, overall_grades=overall_grades)
+		return render_template('query.html', shortName = (results[1] + str(results[2])), className = className, results=tableResults, semDetails = semDetails, vizData = vizData, overall_grades=overall_grades)
 
 @app.route('/surprise')
 def show_random_course():
