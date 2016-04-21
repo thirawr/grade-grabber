@@ -8,8 +8,7 @@
     <title>Grade Grabber</title>
 
     <script src="http://d3js.org/d3.v3.min.js"></script>
-    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-   
+
     <script   src="https://code.jquery.com/jquery-2.2.3.min.js"   integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo="   crossorigin="anonymous"></script>
 
     <!-- Latest compiled and minified CSS -->
@@ -26,77 +25,87 @@
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   </head>
 
+  <body>
 	{% block body %}
-	<!-- Fixed navbar -->
-	<nav class="navbar navbar-default navbar-static-top">
-	  <div class="container">
-	    <div class="navbar-header">
-	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-	        <span class="sr-only">Toggle navigation</span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	      </button>
-	      <a class="navbar-brand" href="/">Grade Grabber</a>
-	    </div>
-	    <div id="navbar" class="navbar-collapse collapse">
-	      <ul class="nav navbar-nav">
-	        <li class="active"><a href="/">Home</a></li>
-	        <li><a href="{{url_for('about')}}">About</a></li>
-	      </ul>
-	      <ul class="nav navbar-nav navbar-right">
-	        <li class="dropdown">
-	          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account <span class="caret"></span></a>
-	          <ul class="dropdown-menu">
-	            <li><a href="#">Profile</a></li>
-	            <li><a href="#">Settings</a></li>
-	            <li role="separator" class="divider"></li>
-	            <li><a href="#">Log out</a></li>
-	          </ul>
-	        </li>
-	        <li><a href="../navbar-static-top/">Admin Panel</a></li>
-	      </ul>
-	    </div><!--/.nav-collapse -->
-	  </div>
-	</nav>
+		<!-- Fixed navbar -->
+		<nav class="navbar navbar-default navbar-static-top">
+		  <div class="container">
+		    <div class="navbar-header">
+		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+		        <span class="sr-only">Toggle navigation</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </button>
+		      <a class="navbar-brand" href="/">Grade Grabber</a>
+		    </div>
+		    <div id="navbar" class="navbar-collapse collapse">
+		      <ul class="nav navbar-nav">
+		        <li class="active"><a href="/">Home</a></li>
+		        <li><a href="#about">About</a></li>
+		      </ul>
+		      <ul class="nav navbar-nav navbar-right">
+	          {% if call_or_get(current_user.is_authenticated) %}
+	            <li class="dropdown">
+	              <a href="http://google.com" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ current_user.username }}<span class="caret"></span></a>
+	              <ul class="dropdown-menu">
+	                <li><a href="{{ url_for('user.profile') }}">Profile</a></li>
+	                <li role="separator" class="divider"></li>
+	                <li><a href="{{ url_for('user.logout') }}">Sign out</a>
+	</li>
+	              </ul>
+	            </li>
+	            {% else %}
+	            	<li>
+	              	<a href="{{ url_for('user.login') }}">Sign in</a>
+	            	</li>
+	            {% endif %}
+		        <li><a href="../navbar-static-top/">Admin Panel</a></li>
+		      </ul>
+		    </div><!--/.nav-collapse -->
+		  </div>
+		</nav>
 
-	<div>
-	{% with messages = get_flashed_messages(with_categories=true) %}
-		{% if messages %}
-			<ul class=flashes>
-			{% for category, message in messages %}
-				{% if category == 'message' %}
-					<div class="alert alert-warning" role="alert">
-				{% else %}
-					<div class="alert alert-danger" role="alert">
-				{% endif %}
-						<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-						{{message}}
-					</div>
-			{% endfor %}
-		{% endif %}
-	{% endwith %}
-	</div>
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				<ul class=flashes>
+				{% for category, message in messages %}
+					{% if category == 'message' %}
+						<div class="alert alert-warning" role="alert">
+					{% elif category == 'error' %}
+						<div class="alert alert-danger" role="alert">
+					{% elif category == 'success' %}
+						<div class="alert alert-success" role="alert">				
+					{% else %}
+						<div class="alert alert-info" role="alert">
+					{% endif %}
+							<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+							{{message}}
+						</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
 
-  {% block main %}
-    {% block content %}
-    {% endblock %}
-  {% endblock %}
+	  {% block main %}
+	    {% block content %}
+	    {% endblock %}
+	  {% endblock %}
 
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	  {% endblock %}
+	  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
-  <!-- Latest compiled and minified JavaScript -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	  <!-- Latest compiled and minified JavaScript -->
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+		
+		<script>
+			$(document).ready(function () {
+			   $('.dropdown-toggle').dropdown();
+			});
 
-	<script>
-		$(document).ready(function () {
-		   $('.dropdown-toggle').dropdown();
-		});
-
-		$(".navbar-toggle").click(function(event) {
-    	$(".navbar-collapse").toggle('in');
-		});
- 	</script>
-	{% endblock %}
+			$(".navbar-toggle").click(function(event) {
+	    	$(".navbar-collapse").toggle('in');
+			});
+ 		</script>
+	</body>
 </html>
