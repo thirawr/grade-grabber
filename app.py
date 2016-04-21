@@ -1,13 +1,14 @@
+from cred import Cred
+
 from flask import Flask, render_template, request, url_for, abort, flash, redirect
 from flaskext.mysql import MySQL
 from json import dumps 
-
-from cred import Cred
-
 from string import ascii_lowercase, ascii_uppercase
 
+import user
 
-app = Flask(__name__)
+
+app = user.create_app()
 app.secret_key = 'i_really_love_cookies'
 mysql = MySQL()
 
@@ -20,7 +21,6 @@ mysql.init_app(app)
 db_connection = mysql.connect()
 
 NUMS = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-
 
 def query_grade_aggs(**c_id):
 	query = 'SELECT * FROM grade_aggregates;'
