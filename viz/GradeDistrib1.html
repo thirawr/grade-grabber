@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+	<style>
+
+	.axis {
+	  font: 10px sans-serif;
+	}
+
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+
+    rect{
+        fill: steelblue;
+    }
+
+    rect:hover{
+        fill: #A6C5DE;
+    }
+
+	</style>
+</head>
+
+<body>
+	
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+    
+<script type="text/javascript">
+    var grades = [];
+    var w = 750;
+    var h = 400;
+    var barPadding = 5;
+
+    grades.push([['A', 10], ['B', 9], ['C', 8], ['D', 2], ['F', 3]]);
+    render(grades[0], w, h);
+
+    function render(grade, w, h) {
+        var margin = { top: 40, right: 20, bottom: 20, left: 40 },
+        width = w - margin.left - margin.right,
+        height = h - margin.top - margin.bottom;
+
+        var x = d3.scale.ordinal().rangeRoundBands([0, width], .1);
+
+        var y = d3.scale.linear().range([height, 0]);
+
+        var xAxis = d3.svg.axis().scale(x).orient("bottom");
+        var yAxis = d3.svg.axis().scale(y).orient("left");
+
+        var svg = d3.select(".barFrame").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        x.domain(grade.map(function(d) { return d[0]; }));
+        y.domain([0, d3.max(grade, function(d) { return d[1]; })]);
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+        .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Count")
+
+        svg.selectAll(".bar")
+            .data(grade)
+        .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", function(d) { return x(d[0]); })
+            .attr("width", x.rangeBand())
+            .attr("y", function(d){ return y(d[1]); })
+            .attr("height", function(d) {return height - y(d[1]); });
+
+        d3.select(".barFrame").attr("align", "center");
+
+        function type(d){
+            d[1] = +d[1];
+            return d;
+        }
+    }
+
+</script>    
+
+
+
+</body>

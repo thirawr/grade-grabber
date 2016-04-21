@@ -17,6 +17,7 @@
 			<div class="col-sm-6">
 				<h3>GPA</h3>
 				<p>The overall average grade of <strong>{{shortName}}</strong> from {{semDetails[semDetails | length - 1][0]}} to {{semDetails[0][0]}} is <strong>{{'%.2f' % overall_grades[4]}}</strong>.  </p> 
+                <p>Students perform best in this course during the {{course_summary[0][0]}} semester with an average grade of {{'%.2f' % course_summary[0][1]}}.
 				<h3>Foo</h3>
 				<p>Lorem ipsum blah blah blah blah.</p>
 				<h3>Bar</h3>
@@ -169,7 +170,7 @@
 
 
         	var margin = {
-        			top: 40,
+        			top: 60,
         			bottom: 20,
         			right: 20,
         			left: 40
@@ -287,7 +288,7 @@
         }
 
         function renderInstructorBar(data, w, h) {
-            var margin = { top: 40, right: 20, bottom: 20, left: 40 },
+            var margin = { top: 60, right: 20, bottom: 20, left: 40 },
             width = w - margin.left - margin.right,
             height = h - margin.top - margin.bottom;
 

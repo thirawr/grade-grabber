@@ -1,0 +1,15 @@
+python clean_import.py FA10-SU14/import/fa10.csv
+python clean_import.py FA10-SU14/import/fa11.csv
+python clean_import.py FA10-SU14/import/fa12.csv
+python clean_import.py FA10-SU14/import/fa13.csv
+python clean_import.py FA10-SU14/import/fa14.csv
+python clean_import.py FA10-SU14/import/sp10.csv
+python clean_import.py FA10-SU14/import/sp11.csv
+python clean_import.py FA10-SU14/import/sp12.csv
+python clean_import.py FA10-SU14/import/sp13.csv
+python clean_import.py FA10-SU14/import/sp14.csv
+python clean_import.py FA10-SU14/import/su10.csv
+python clean_import.py FA10-SU14/import/su11.csv
+python clean_import.py FA10-SU14/import/su12.csv
+python clean_import.py FA10-SU14/import/su13.csv
+python clean_import.py FA10-SU14/import/su14.csv

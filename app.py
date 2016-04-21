@@ -209,6 +209,39 @@ def prep_instructor_gpa_data(c_id):
 
 	return viz_map_list
 
+# Should refactor to use results from prep_line_graph_data
+def course_summary(c_id):
+	query = """SELECT s.parsed_term, AVG(g.average_gpa)
+	FROM semesters AS s INNER JOIN grade_counts AS g
+	ON s.s_id = g.s_id WHERE s.c_id = %s
+	GROUP BY s.parsed_term"""
+
+	with db_connection as cursor:
+		cursor.execute(query, [c_id])
+		results = cursor.fetchall()
+
+	term_avgs = {'FA': 0.0, 'SP': 0.0, 'SU': 0.0}
+
+	for key in term_avgs:
+		term_grades = []
+		for row in results:
+			if key in row[0] and row[1] != None:
+				term_grades.append(float(row[1]))
+		
+		if len(term_grades) > 0:
+			avg = sum(term_grades)/float(len(term_grades))
+			term_avgs[key] = avg
+
+	highest_term = []
+	highest_key = 'FA'
+	for key in term_avgs:
+		if term_avgs[key] > term_avgs[highest_key]:
+			highest_key = key
+
+	highest_term = [highest_key, term_avgs[highest_key]]
+
+	return [highest_term]
+
 
 
 #Record is a dictionary of values:
@@ -362,28 +395,23 @@ def show_selected_course(c_id):
 	if results is None:
 		flash('Course does not exist!', 'alert')
 		return render_template('index.html')
+	
 	else:
-		# barData = prep_bar_graph_data(results)
-		# lineData = prep_line_graph_data(c_id)
-
-		# if barData == None and lineData == None:
-		# 	vizData = None
-		# else:
-		# 	vizData = [barData, lineData]
-
 		className = results[1] + str(results[2]) + ": " + results[3]
 		tableResults = results[4:]
 
 		if tableResults[0] != None:
 			vizData = [prep_bar_graph_data(results), prep_line_graph_data(c_id), prep_instructor_gpa_data(c_id)]
+			course_desc = course_summary(c_id)
 		else:
 			vizData = None
+			course_desc = None
 
 		overall_grades = query_grade_aggs(c_id=results[0])[0]
 		print overall_grades
 		semDetails = get_semesters_from_c_id(results[0])
 
-		return render_template('query.html', shortName = (results[1] + str(results[2])), className = className, results=tableResults, semDetails = semDetails, vizData = vizData, overall_grades=overall_grades)
+		return render_template('query.html', shortName = (results[1] + str(results[2])), className = className, results=tableResults, semDetails = semDetails, vizData = vizData, overall_grades=overall_grades, course_summary = course_desc)
 
 @app.route('/surprise')
 def show_random_course():
