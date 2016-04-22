@@ -18,9 +18,9 @@
 				<h3>GPA</h3>
 				<p>The overall average grade of <strong>{{shortName}}</strong> from {{semDetails[semDetails | length - 1][0]}} to {{semDetails[0][0]}} is <strong>{{'%.2f' % overall_grades[4]}}</strong>.  </p> 
 				<h3>Instructor</h3>
-				<p>Sections taught by <strong>{{vizData[2][0][0]}}</strong> have the highest average grade: <strong>{{'%.2f' % vizData[2][1][1] | float}}.</strong></p>
+				<p>Sections taught by <strong>{{vizData[2][0][0]}}</strong> have the highest average grade: <strong>{{'%.2f' % vizData[2][0][1] | float}}.</strong></p>
 				<h3>Term</h3>
-				<p><p>Students perform best in this course during the {{course_summary[0][0]}} semester with an average grade of {{'%.2f' % course_summary[0][1]}}.</p></p>
+				<p><p>Students perform best in this course during the <strong>{{course_summary[0][0]}}</strong> semester with an average grade of <strong>{{'%.2f' % course_summary[0][1]}}</strong>.</p></p>
 			</div>
 			<!-- <div class="col-sm-2"></div> -->
 		</div>
