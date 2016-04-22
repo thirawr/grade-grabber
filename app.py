@@ -27,7 +27,9 @@ def query_grade_aggs(**c_id):
 	arg = None
 	if('c_id' in c_id):
 		arg = c_id['c_id']
+		print arg
 		query =  query[:len(query)-1] + ' WHERE c_id = %s;'
+		print query
 
 	with db_connection as cursor:
 		if arg == None:
@@ -247,9 +249,10 @@ def course_summary(c_id):
 #Record is a dictionary of values:
 #[Subject, Course#, Title, CRN, Term, Average GPA, A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F]
 def insert_record(record):
-	if record_is_duplicate(record['crn'], record['term'], record['section']):
-		flash('Course with identical CRN, term, section already exists in database - try updating the record instead.')
-		return None
+	# if record_is_duplicate(record['crn'], record['term'], record['section']):
+	# 	flash('Course with identical CRN, term, section already exists in database - try updating the record instead.')
+	# 	return None
+
 	#First check if distinct course is in courses table - add if not
 	query = 'SELECT COUNT(*) FROM courses WHERE subject = (%s) AND course_number = (%s) AND title = (%s)'
 	args = record['subject'], record['number'], record['title']
@@ -258,35 +261,51 @@ def insert_record(record):
 		results = cursor.fetchone()
 		print results
 	#No distinct course yet
+	c_id = None
 	if results[0] == 0:
 		course_insert = 'INSERT INTO courses (subject, course_number, title) VALUES ((%s), (%s), (%s))'
 		cursor.execute(course_insert, args)
+		# db_connection.commit()
 		cursor.execute('SELECT LAST_INSERT_ID() FROM courses')
-		c_id = cursor.fetchone()
-	cursor.execute('SELECT c_id FROM courses WHERE subject = (%s) AND course_number = (%s) AND title = (%s)', args)
-	c_id = cursor.fetchone()
+		c_id = cursor.fetchone()[0]
+	else:
+		cursor.execute('SELECT c_id FROM courses WHERE subject = (%s) AND course_number = (%s) AND title = (%s)', args)
+		c_id = cursor.fetchone()[0]
+	c_id = int(c_id)
 	#Add course details to semesters
-	semester_insert = """INSERT INTO semesters (c_id, raw_term, parsed_term, section, instructor, crn) VALUES (%s, %s, %s, %s, %s, %s)"""
-	args = c_id, record['term'], 'FA14', record['section'], record['instructor'], record['crn']
+	with db_connection as cursor:
+		semDupQuery = 'SELECT COUNT(*) FROM semesters WHERE c_id = %s AND raw_term = %s AND parsed_term = %s AND section = %s AND instructor = %s AND crn = %s AND sched_type = %s'
+		args = (c_id, record['term'], record['parsed_term'], record['section'], record['instructor'], record['crn'], record['sched_type'])
+		cursor.execute(semDupQuery, args)
+		dupeCount = cursor.fetchone()[0]
+		if dupeCount > 0:
+			flash('Cannot insert duplicate course section. Why not update instead?', 'warning')
+			return None
+
+
+
+	semester_insert = """INSERT INTO semesters (c_id, raw_term, parsed_term, section, instructor, crn, sched_type) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+	args = c_id, record['term'], record['parsed_term'], record['section'], record['instructor'], record['crn'], record['sched_type']
 	cursor.execute(semester_insert, args)
 	#Add grade_counts data
+	# db_connection.commit()
 	cursor.execute('SELECT LAST_INSERT_ID() FROM semesters')
-	s_id = cursor.fetchone()
+	s_id = int(cursor.fetchone()[0])
 	
-	if not (record['avg_gpa'] and record['aplus'] and record['a'] and record['aminus'] and record['bplus'] and record['b'] and record['bminus'] and record['cplus'] and record['c'] and record['cminus'] and record['dplus'] and record['d'] and record['dminus'] and record['f']):
-		values = (s_id, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)
-		grade_insert = 'INSERT INTO grade_counts (s_id, average_gpa, a_plus_count, a_count, a_minus_count, b_plus_count, b_count, b_minus_count, c_plus_count, c_count, c_minus_count, d_plus_count, d_count, d_minus_count, f_count, w_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+	if not (record['avg_gpa'] or record['aplus'] or record['a'] or record['aminus'] or record['bplus'] or record['b'] or record['bminus'] or record['cplus'] or record['c'] or record['cminus'] or record['dplus'] or record['d'] or record['dminus'] or record['f']):
+		values = (c_id, s_id, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)
+		grade_insert = 'INSERT INTO grade_counts (c_id, s_id, average_gpa, a_plus_count, a_count, a_minus_count, b_plus_count, b_count, b_minus_count, c_plus_count, c_count, c_minus_count, d_plus_count, d_count, d_minus_count, f_count, w_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 	else:
-		values = (s_id, record['avg_gpa'], record['aplus'], record['a'], record['aminus'], record['bplus'], record['b'], record['bminus'], record['cplus'], record['c'], record['cminus'], record['dplus'], record['d'], record['dminus'], record['f'], record['w'])
-		grade_insert = 'INSERT INTO grade_counts VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+		values = (c_id, s_id, record['avg_gpa'], record['aplus'], record['a'], record['aminus'], record['bplus'], record['b'], record['bminus'], record['cplus'], record['c'], record['cminus'], record['dplus'], record['d'], record['dminus'], record['f'], record['w'])
+		grade_insert = 'INSERT INTO grade_counts VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 	# subject = record['subject'].upper()
 	# section = record['section'].upper()
 
 	with db_connection as cursor:
 		cursor.execute(grade_insert, values)
 		db_connection.commit()
-		flash('Insertion successful')
-	return 1, s_id
+		flash('Insertion successful', 'success')
+	return 1, c_id
 
 def update_record(form):
 	query = "UPDATE grade_counts SET "
@@ -431,21 +450,6 @@ def update_record(form):
 	flash('Update successful.', 'success')
 	return
 
-# def delete_by_crn_term(crn, term):
-# 	row = query_by_crn_term(crn, term)[0]
-# 	if not row:
-# 		return None
-# 	else:
-# 		with db_connection as cursor:
-# 			deletion = 'DELETE FROM semesters WHERE s_id = %s;'
-# 			grade_deletion = 'DELETE FROM grade_counts WHERE s_id = %s'
-# 			args = (row[1],)
-# 			cursor.execute(deletion, args)
-# 			cursor.execute(grade_deletion, args)
-# 			db_connection.commit
-# 			return row
-# 		return None
-
 def delete_record(s_id):
 	grades_deletion = 'DELETE FROM grade_counts WHERE s_id = %s'
 	sems_deletion = 'DELETE FROM semesters WHERE s_id = %s'
@@ -469,7 +473,7 @@ def query_candidate_courses(subj, num):
 	with db_connection as cursor:
 		cursor.execute(query, args)
 		results = cursor.fetchall()
-	print results
+	# print results
 	return results 
 
 # Returns True if multiple courses are listed under 
@@ -503,6 +507,7 @@ def front():
 
 		subj = ""
 		num = ""
+		print subj, num
 
 
 
@@ -531,21 +536,24 @@ def front():
 		else:
 			c_id_tuple = query_candidate_courses(subj, num)
 			print c_id_tuple
-			if c_id_tuple == ():
+			if not c_id_tuple:
 				flash('Course does not exist!', 'error')
 				return render_template('index.html')
 			else:
 				c_id = c_id_tuple[0][0]
+				print c_id
 
-			results = query_grade_aggs(c_id=c_id)
+			# results = query_grade_aggs(c_id=c_id)
 			# results = get_aggs_from_subj_num(subj, num)
 			return show_selected_course(c_id)
 			
 @app.route("/query/<c_id>")
 def show_selected_course(c_id):
+	print c_id
 	results = query_grade_aggs(c_id=c_id)
+	print results
 
-	if results is ():
+	if not results:
 		flash('Course does not exist!', 'error')
 		return render_template('index.html')
 	else:
@@ -599,23 +607,11 @@ def modify():
 				#row = s_id + row
 				results += row
 
-			# results = []
-			# for s_id, each in zip(tupleList, s_ids):
-			# 	results.append([s_id])
-			# 	index = results.index()
-			# 	for attribute in each:
-
-
-				# query = 'SELECT * FROM courses WHERE subject = (%s) AND course_number = (%s);'
-				# args = subject, number
-				# cursor.execute(query, args)
-				# result = cursor.fetchone()
-			#Reorder columns
-			# result = result,
-			# print result
-			# result = result[0]
-			#return redirect(url_for('update'))
-			return render_template('update.html', s_ids = s_ids, result=results, update=True)
+			if results:
+				return render_template('update.html', s_ids = s_ids, result=results, update=True)
+			else:
+				flash('No course found matching %s%s' %(subject, number), 'warning')
+				return render_template('modify.html')
 
 		elif 'update_conf' in request.form:
 			update_record(request.form)
@@ -628,12 +624,12 @@ def modify():
 		#Inserting a record
 		elif 'insert' in request.form:
 			#minimal form validation
-			if request.form['subject'] and request.form['number'] and request.form['title'] and request.form['crn'] and request.form['term'] and request.form['section'] and request.form['instructor']:
+			if request.form['subject'] and request.form['number'] and request.form['title'] and request.form['crn'] and request.form['term'] and request.form['section'] and request.form['instructor'] and request.form['sched_type']:
 				status = insert_record(request.form)
 				if status == None:
 					return render_template('modify.html')
 				else:
-					return render_template('query.html', results=query_by_s_id(status[1]))
+					return show_selected_course(status[1])
 			else:
 				flash('Insertion requires the following fields at minimum: subject, course number, title, CRN and section.')
 			return render_template('modify.html')

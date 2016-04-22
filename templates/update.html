@@ -53,16 +53,16 @@
 			</td>
 			{% for attribute in row[1:] %}
 			<td>{{attribute}}</td>
-			{% endfor  %}
+			{% endfor %}
 		</tr>
 		{% endfor %}
 
 		</tr>
 	</table>
 </div>
-{% if update %}
 <div class="container">
 	<div class="row">
+		{% if update %}
 		<h2>Enter Fields to Update</h2>
 		<label>Average GPA:</label><br>
 		<input type="text" name="avg_gpa">
@@ -149,7 +149,6 @@
 				</div>
 			</div>
 	</form>
-}
 </div>
 		{% endif %}
 {% endblock %}
