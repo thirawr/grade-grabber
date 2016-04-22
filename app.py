@@ -194,7 +194,7 @@ def prep_instructor_gpa_data(c_id):
 	query = """SELECT s.instructor, AVG(g.average_gpa)
 	FROM semesters AS s INNER JOIN grade_counts AS g
 	ON s.s_id = g.s_id WHERE s.c_id = %s
-	GROUP BY instructor;"""
+	GROUP BY instructor ORDER BY AVG(g.average_gpa) DESC"""
 
 	with db_connection as cursor:
 		cursor.execute(query, [c_id])
