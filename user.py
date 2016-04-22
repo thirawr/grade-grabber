@@ -1,9 +1,12 @@
 from cred import Cred
-import os
+
 from flask import Flask, render_template
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
+
+import os
+
 
 # Use a Class-based config to avoid needing a 2nd file
 # os.getenv() enables configuration through OS environment variables
@@ -53,6 +56,10 @@ def create_app():
         active = db.Column('is_active', db.Boolean(), nullable=False, server_default='0')
         first_name = db.Column(db.String(100), nullable=False, server_default='')
         last_name = db.Column(db.String(100), nullable=False, server_default='')
+
+        year = db.Column(db.Enum('Freshman', 'Sophomore', 'Junior', 'Senior', 'Masters', 'PhD'), nullable=True, server_default=None)
+        major = db.Column(db.String(100), nullable=True, server_default=None)
+        gpa = db.Column(db.Float(precision=2))
 
     # Create all database tables
     db.create_all()
