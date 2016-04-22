@@ -1,111 +1,107 @@
-{% extends 'layout.html' %}
-{% block body %}
-{{status}}
-<div>
-  <h2>Display Course Data</h2>
-  <form method="post">
-    <label>Subject:</label>
-    <input type="text" name="subject" placeholder="ie. CS"><br>
-    <label>Number:</label>
-    <input type="text" name="number" placeholder="ie. 411"><br>
-    <input name="search" type="submit" />
-  </form>
-</div>
-<div>
-  <form method="post">
-  <h2>Update a Record</h2>
-    <label>Subject:</label><br>
-    <input type="text" name="subject" placeholder="ie. CS"><br>
-    <label>Number:</label><br>
-    <input type="text" name="number" placeholder="ie. 411"><br>
-    <input name="update_query" type="submit">
-  </form>
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="sm-col-12">
+      <form method="post">
+      <h2>Update a Record</h2>
+        <label>Subject:</label><br>
+        <input type="text" name="subject" placeholder="ie. CS"><br>
+        <label>Number:</label><br>
+        <input type="text" name="number" placeholder="ie. 411"><br>
+        <input name="update_query" type="submit">
+      </form>
+    </div>
 </div>
 
-<div>
-  <h2>Delete a Record</h2>
-  <form method="post">
-  CRN:<br>
-    <input type="text" name="crn">
-    <br>
-    Term (ie. FA14, WN13, SP16, SU12):<br>
-    <input type="text" name="term">
-    <br>
-    <br>
-    <input name="delete" type="submit">
-  </form>
+<div class="container-fluid">
+  <div class="sm-col-12">
+      <h2>Delete a Record</h2>
+      <form method="post">
+        <label>Subject:</label><br>
+        <input type="text" name="subject">
+        <br>
+        <label>Number:</label><br>
+        <input type="text" name="number">
+        <br>
+        <br>
+        <input name="delete" type="submit">
+      </form>
+  </div>
 </div>
 
 
-<div>
-  <h2>Insert a Record</h2>
-  <form method="post">
-    <label>Subject:</label><br>
-    <input type="text" name="subject" placeholder="ie. CS">
-    <br>
-    <label>Course Number:</label><br>
-    <input type="text" name="number" placeholder="ie. 411">
-    <br>
-    <label>Title:</label><br>
-    <input type="text" name="title">
-    <br>
-    <label>CRN:</label><br>
-    <input type="text" name="crn">
-    <br>
-    <label>Term (ie. FA14, WN13, SP16, SU12):</label><br>
-    <input type="text" name="term">
-    <br>
-    <label>Section</label><br>
-    <input type="text" name="section">
-    <br>
-    <label>Instructor name</label><br>
-    <input type="text" name="instructor"></br>
-    <label>Average GPA:</label><br>
-    <input type="text" name="avg_gpa">
-    <br>
-    <label>A+'s:</label><br>
-    <input type="text" name="aplus">
-    <br>
-    <label>A's:</label><br>
-    <input type="text" name="a">
-    <br>
-    <label>A-'s:</label><br>
-    <input type="text" name="aminus">
-    <br>
-    <label>B+'s:</label><br>
-    <input type="text" name="bplus">
-    <br>
-    <label>B's:</label><br>
-    <input type="text" name="b">
-    <br>
-    <label>B-'s:</label><br>
-    <input type="text" name="bminus">
-    <br>
-    <label>C+'s:</label><br>
-    <input type="text" name="cplus">
-    <br>
-    <label>C's:</label><br>
-    <input type="text" name="c">
-    <br>
-    <label>C-'s:</label><br>
-    <input type="text" name="cminus">
-    <br>
-    <label>D+'s:</label><br>
-    <input type="text" name="dplus">
-    <br>
-    <label>D's:</label><br>
-    <input type="text" name="d">
-    <br>
-    <label>D-'s:</label><br>
-    <input type="text" name="dminus">
-    <br>
-    <label>F's:</label><br>
-    <input type="text" name="f">
-    <br>
-    <label>W's:</label><br>
-    <input type="text" name="w">
-    <br>
-    <input name="insert" type="submit">
-  </form>
+<div class="container-fluid">
+    <div class="sm-col-12">
+      <h2>Insert a Record</h2>
+      <form method="post">
+        <label>Subject:</label><br>
+        <input type="text" name="subject" placeholder="ie. CS">
+        <br>
+        <label>Course Number:</label><br>
+        <input type="text" name="number" placeholder="ie. 411">
+        <br>
+        <label>Title:</label><br>
+        <input type="text" name="title">
+        <br>
+        <label>CRN:</label><br>
+        <input type="text" name="crn">
+        <br>
+        <label>Term (ie. FA14, WN13, SP16, SU12):</label><br>
+        <input type="text" name="term">
+        <br>
+        <label>Section</label><br>
+        <input type="text" name="section">
+        <br>
+        <label>Instructor name</label><br>
+        <input type="text" name="instructor"></br>
+        <label>Average GPA:</label><br>
+        <input type="text" name="avg_gpa">
+        <br>
+        <label>A+'s:</label><br>
+        <input type="text" name="aplus">
+        <br>
+        <label>A's:</label><br>
+        <input type="text" name="a">
+        <br>
+        <label>A-'s:</label><br>
+        <input type="text" name="aminus">
+        <br>
+        <label>B+'s:</label><br>
+        <input type="text" name="bplus">
+        <br>
+        <label>B's:</label><br>
+        <input type="text" name="b">
+        <br>
+        <label>B-'s:</label><br>
+        <input type="text" name="bminus">
+        <br>
+        <label>C+'s:</label><br>
+        <input type="text" name="cplus">
+        <br>
+        <label>C's:</label><br>
+        <input type="text" name="c">
+        <br>
+        <label>C-'s:</label><br>
+        <input type="text" name="cminus">
+        <br>
+        <label>D+'s:</label><br>
+        <input type="text" name="dplus">
+        <br>
+        <label>D's:</label><br>
+        <input type="text" name="d">
+        <br>
+        <label>D-'s:</label><br>
+        <input type="text" name="dminus">
+        <br>
+        <label>F's:</label><br>
+        <input type="text" name="f">
+        <br>
+        <label>W's:</label><br>
+        <input type="text" name="w">
+        <br>
+        <input name="insert" type="submit">
+      </form>
+    </div>
 </div>
 {% endblock %}

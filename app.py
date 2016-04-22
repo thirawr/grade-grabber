@@ -288,21 +288,174 @@ def insert_record(record):
 		flash('Insertion successful')
 	return 1, s_id
 
+def update_record(form):
+	query = "UPDATE grade_counts SET "
+	args = []
+	if 'update_s_id' not in form:
+		flash('Error: no record selected for update operation.', 'error')
+		# return render_template('modify.html')
+		return
 
-def delete_by_crn_term(crn, term):
-	row = query_by_crn_term(crn, term)[0]
-	if not row:
-		return None
-	else:
-		with db_connection as cursor:
-			deletion = 'DELETE FROM semesters WHERE s_id = %s;'
-			grade_deletion = 'DELETE FROM grade_counts WHERE s_id = %s'
-			args = (row[1],)
-			cursor.execute(deletion, args)
-			cursor.execute(grade_deletion, args)
-			db_connection.commit
-			return row
-		return None
+	if not (form['avg_gpa'] or form['aplus'] or form['a'] or form['aminus'] or form['bplus'] or form['b'] or form['bminus'] or form['cplus'] or form['c'] or form['cminus'] or form['dplus'] or form['d'] or form['dminus'] or form['f'] or form['w']):
+		flash('Input error: Cannot update a record without first being given values.', 'warning')
+		return
+
+	if form['avg_gpa']:
+		query += "average_gpa = %s, "
+		try:
+			args.append(float(form['avg_gpa']))
+		except ValueError:
+			flash('Invalid input. Average grade must be a decimal or an integer.', 'error')
+			return
+
+		# print args
+	if form['aplus']:
+		query += "a_plus_count = %s, "
+		try:
+			args.append(int(form['aplus']))
+		except ValueError:
+			flash('Invalid input. A plus count must be an integer.', 'error')
+			return
+
+	if form['a']:
+		query += "a_count = %s, "
+		try:
+			args.append(int(form['a']))
+		except ValueError:
+			flash('Invalid input. A count must be an integer.', 'error')
+			return
+
+	if form['aminus']:
+		query += 'a_minus_count = %s, '
+		try: 
+			args.append(int(form['aminus']))
+		except ValueError:
+			flash('Invalid input. A minus count must be an integer.', 'error')
+			return
+
+	if form['bplus']:
+		query += 'b_plus_count = %s, '
+		try:
+			args.append(int(form['bplus']))
+		except ValueError:
+			flash('Invalid input. B plus count must be an integer.', 'error')
+			return
+
+	if form['b']:
+		query += 'b_count = %s, '
+		try:
+			args.append(int(form['b']))
+		except ValueError:
+			flash('Invalid input. B count must be an integer.', 'error')
+			return
+
+	if form['bminus']:
+		query += 'b_minus_count = %s, '
+		try:
+			args.append(int(form['bminus']))
+		except ValueError:
+			flash('Invalid input. B minus count must be an integer.', 'error')
+			return
+
+	if form['cplus']:
+		query += 'c_plus_count = %s, '
+		try:
+			args.append(int(form['cplus']))
+		except ValueError:
+			flash('Invalid input. C plus count must be an integer.', 'error')
+			return
+
+	if form['c']:
+		query += 'c_count = %s, '
+		try:
+			args.append(int(form['c']))
+		except ValueError:
+			flash('Invalid input. C count must be an integer.', 'error')
+			return
+
+	if form['cminus']:
+		query += 'c_minus_count = %s, '
+		try:
+			args.append(int(form['cminus']))
+		except ValueError:
+			flash('Invalid input. C minus count must be an integer.', 'error')
+			return 
+
+	if form['dplus']:
+		query += 'd_plus_count = %s, '
+		try:
+			args.append(int(form['dplus']))
+		except ValueError:
+			flash('Invalid input. D plus count must be an integer.', 'error')
+			return
+
+	if form['d']:
+		query += 'd_count = %s, '
+		try:
+			args.append(int(form['d']))
+		except ValueError:
+			flash('Invalid input. D count must be an integer.', 'error')
+			return
+
+	if form['dminus']:
+		query += 'd_minus_count = %s, '
+		try:
+			args.append(int(form['dminus']))
+		except ValueError:
+			flash('Invalid input. D minus count must be an integer.', 'error')
+			return
+
+	if form['f']:
+		query += 'f_count = %s, '
+		try:
+			args.append(int(form['f']))
+		except ValueError:
+			flash('Invalid input. F count must be an integer.', 'error')
+			return 
+
+	if form['w']:
+		query += 'w_count = %s, '
+		try:
+			args.append(int(form['w']))
+		except ValueError:
+			flash('Invalid input. W count must be an integer.', 'error')
+
+	query = query[:len(query)-2] + " " + "WHERE s_id = %s"
+	print query
+
+	args.append(int(form['update_s_id']))
+
+	with db_connection as cursor:
+		cursor.execute(query, args)
+
+	flash('Update successful.', 'success')
+	return
+
+# def delete_by_crn_term(crn, term):
+# 	row = query_by_crn_term(crn, term)[0]
+# 	if not row:
+# 		return None
+# 	else:
+# 		with db_connection as cursor:
+# 			deletion = 'DELETE FROM semesters WHERE s_id = %s;'
+# 			grade_deletion = 'DELETE FROM grade_counts WHERE s_id = %s'
+# 			args = (row[1],)
+# 			cursor.execute(deletion, args)
+# 			cursor.execute(grade_deletion, args)
+# 			db_connection.commit
+# 			return row
+# 		return None
+
+def delete_record(s_id):
+	grades_deletion = 'DELETE FROM grade_counts WHERE s_id = %s'
+	sems_deletion = 'DELETE FROM semesters WHERE s_id = %s'
+
+	with db_connection as cursor:
+		cursor.execute(grades_deletion, [s_id])
+		cursor.execute(sems_deletion, [s_id])
+
+	flash('Deletion of record %s successful.' %(s_id), 'success')
+	return
 
 # Used for autocomplete
 # Returns a list of ["subjNum: title"] for course candidates
@@ -379,7 +532,7 @@ def front():
 			c_id_tuple = query_candidate_courses(subj, num)
 			print c_id_tuple
 			if c_id_tuple == ():
-				flash('Course does not exist!', 'alert')
+				flash('Course does not exist!', 'error')
 				return render_template('index.html')
 			else:
 				c_id = c_id_tuple[0][0]
@@ -391,12 +544,12 @@ def front():
 @app.route("/query/<c_id>")
 def show_selected_course(c_id):
 	results = query_grade_aggs(c_id=c_id)
-	results = results[0]
-	if results is None:
-		flash('Course does not exist!', 'alert')
+
+	if results is ():
+		flash('Course does not exist!', 'error')
 		return render_template('index.html')
-	
 	else:
+		results = results[0]
 		className = results[1] + str(results[2]) + ": " + results[3]
 		tableResults = results[4:]
 
@@ -407,11 +560,11 @@ def show_selected_course(c_id):
 			vizData = None
 			course_desc = None
 
-		overall_grades = query_grade_aggs(c_id=results[0])[0]
-		print overall_grades
+		# overall_grades = query_grade_aggs(c_id=results[0])[0]
+		# print overall_grades
 		semDetails = get_semesters_from_c_id(results[0])
 
-		return render_template('query.html', shortName = (results[1] + str(results[2])), className = className, results=tableResults, semDetails = semDetails, vizData = vizData, overall_grades=overall_grades, course_summary = course_desc)
+		return render_template('query.html', shortName = (results[1] + str(results[2])), className = className, results=tableResults, semDetails = semDetails, vizData = vizData, overall_grades=results, course_summary = course_desc)
 
 @app.route('/surprise')
 def show_random_course():
@@ -426,15 +579,15 @@ def modify():
 	if request.method == 'POST':
 		#query = 'SELECT * FROM course '
 
-		#Searching for a course
-		if 'search' in request.form:
-			subject = request.form['subject']
-			number = request.form['number']
-			results = query_by_subj_num(subject, number)
-			return render_template('query.html', results=results)
+		# #Searching for a course
+		# if 'search' in request.form:
+		# 	subject = request.form['subject']
+		# 	number = request.form['number']
+		# 	results = query_by_subj_num(subject, number)
+		# 	return render_template('query.html', results=results)
 
 		#Updating a record
-		elif 'update_query' in request.form:
+		if 'update_query' in request.form:
 			subject = request.form['subject']
 			number = request.form['number']
 			#print crn
@@ -462,10 +615,15 @@ def modify():
 			# print result
 			# result = result[0]
 			#return redirect(url_for('update'))
-			return render_template('update.html', s_ids = s_ids, result=results)
+			return render_template('update.html', s_ids = s_ids, result=results, update=True)
 
 		elif 'update_conf' in request.form:
-			return 'Success'
+			update_record(request.form)
+
+			return render_template('modify.html')
+
+			# print request.form['update_s_id']
+			# return 'Success'
 
 		#Inserting a record
 		elif 'insert' in request.form:
@@ -481,11 +639,19 @@ def modify():
 			return render_template('modify.html')
 
 		elif 'delete' in request.form:
-			row = delete_by_crn_term(request.form['crn'], request.form['term'])
-			if row:
-				flash('Successfully deleted:\n (%s)' % str(row))
-			else:
-				flash('Grade report does not exist, nothing deleted.')
+			subject = request.form['subject']
+			number = request.form['number']
+			s_ids = get_all_s_ids(subject, number)
+			results = ()
+
+			for s_id in s_ids:
+				row = query_by_s_id(s_id)
+				results += row
+
+			return render_template('update.html', s_ids = s_ids, result = results, update = False)
+
+		elif 'delete_conf' in request.form:
+			delete_record(request.form['update_s_id'])
 			return render_template('modify.html')
 
 	else:

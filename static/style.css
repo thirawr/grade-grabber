@@ -47,6 +47,10 @@ path {
   font: 10px sans-serif;
 }
 
+.alert{
+  padding-right: 20px;
+}
+
 /* Creates a small triangle extender for the tooltip */
 /*.d3-tip:after {
   box-sizing: border-box;

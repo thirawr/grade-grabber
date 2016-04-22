@@ -1,87 +1,155 @@
 {% extends 'layout.html' %}
-{% block body %}
-<table>
-	<tr>
-		<td>Semester ID</td>
-		<td>CRN</td>
-		<td>Term</td>
-		<td>Subject</td>
-		<td>Number</td>
-		<td>Title</td>
-		<td>Average GPA</td>
-		<td>A+'s</td>
-		<td>A's</td>
-		<td>A-'s</td>
-		<td>B+'s</td>
-		<td>B's</td>
-		<td>B-'s</td>
-		<td>C+'s</td>
-		<td>C's</td>
-		<td>C-'s</td>
-		<td>D+'s</td>
-		<td>D's</td>
-		<td>D-'s</td>
-		<td>F's</td>
-		<td>Instructor</td>
-		<td>Section</td>
-	</tr>
-	{% for row in result %}
-	<tr>
-		{% for attribute in row %}
-		<td>{{attribute}}</td>
-		{% endfor  %}
-	</tr>
-	{% endfor %}
+{% block content %}
+<div class="container">
+	<div class="row">
+		<h1>Update Course Records</h1>
+	</div>
+	<div class="row">
+		{% if update %}
+		<p>Select the radio button that corresponds to the semester you would like to update. Enter the values you would like to change in the form below the table. All fields must be filled to update a row; otherwise, the row's values will all be set to N/A.
+		</p>
+		{% else %}
+		<p>
+			Select the radio button of the record that you would like to delete and click submit.
+		</p>
+		{% endif %}
+	</div>
+</div>
+<form method="post">
+<div class="table-responsive">
+	<table class="table table-hover">
+		<tr>
+			<td>Semester ID</td>
+			<td>CRN</td>
+			<td>Term</td>
+			<td>Subject</td>
+			<td>Number</td>
+			<td>Title</td>
+			<td>Average GPA</td>
+			<td>A+'s</td>
+			<td>A's</td>
+			<td>A-'s</td>
+			<td>B+'s</td>
+			<td>B's</td>
+			<td>B-'s</td>
+			<td>C+'s</td>
+			<td>C's</td>
+			<td>C-'s</td>
+			<td>D+'s</td>
+			<td>D's</td>
+			<td>D-'s</td>
+			<td>F's</td>
+			<td>Instructor</td>
+			<td>Section</td>
+		</tr>
+		{% for row in result %}
+		<tr>
+			<td>
+				<div class="radio">
+	  				<label>
+	  					<input type="radio" value={{row[0]}} id="update_s_id" name="update_s_id">
+	  				</label>
+				</div>
+			</td>
+			{% for attribute in row[1:] %}
+			<td>{{attribute}}</td>
+			{% endfor  %}
+		</tr>
+		{% endfor %}
 
-	</tr>
-</table>
-<div>
-	<h2>Enter Fields to Update</h2>
-	<form method="post">
-	Average GPA:<br>
-	<input type="text" name="avg_gpa">
-	<br>
-	A+'s:<br>
-	<input type="text" name="aplus">
-	<br>
-	A's:<br>
-	<input type="text" name="a">
-	<br>
-	A-'s:<br>
-	<input type="text" name="aminus">
-	<br>
-	B+'s:<br>
-	<input type="text" name="bplus">
-	<br>
-	B's:<br>
-	<input type="text" name="b">
-	<br>
-	B-'s:<br>
-	<input type="text" name="bminus">
-	<br>
-	C+'s:<br>
-	<input type="text" name="cplus">
-	<br>
-	C's:<br>
-	<input type="text" name="c">
-	<br>
-	C-'s:<br>
-	<input type="text" name="cminus">
-	<br>
-	D+'s:<br>
-	<input type="text" name="dplus">
-	<br>
-	D's:<br>
+		</tr>
+	</table>
+</div>
+{% if update %}
+<div class="container">
+	<div class="row">
+		<h2>Enter Fields to Update</h2>
+		<label>Average GPA:</label><br>
+		<input type="text" name="avg_gpa">
+		<br>
+	</div>
+	<div class="row">
+		<label>A+'s:</label><br>
+		<input type="text" name="aplus">
+		<br>
+	</div>
+	<div class="row">
+		<label>A's:</label><br>
+		<input type="text" name="a">
+		<br>
+	</div>
+	<div class="row">
+		<label>A-'s:</label><br>
+		<input type="text" name="aminus">
+		<br>
+	</div>
+	<div class="row">
+		<label>B+'s:</label><br>
+		<input type="text" name="bplus">
+		<br>
+	</div>
+	<div class="row">
+		<label>B's:</label><br>
+		<input type="text" name="b">
+		<br>
+	</div>
+	<div class="row">
+		<label>B-'s:</label><br>
+		<input type="text" name="bminus">
+		<br>
+	</div>
+	<div class="row">
+		<label>C+'s:</label><br>
+		<input type="text" name="cplus">
+		<br>
+	</div>
+	<div class="row">
+		<label>C's:</label><br>
+		<input type="text" name="c">
+		<br>
+	</div>
+	<div class="row">
+		<label>C-'s:</label><br>
+		<input type="text" name="cminus">
+		<br>
+	</div>
+	<div class="row">
+		<label>D+'s:</label><br>
+		<input type="text" name="dplus">
+		<br>
+	</div>
+	<div class="row">
+	<label>D's:</label><br>
 	<input type="text" name="d">
 	<br>
-	D-'s:<br>
-	<input type="text" name="dminus">
+	</div>
+	<div class="row">
+		<label>D-'s:</label><br>
+		<input type="text" name="dminus">
+		<br>
+	</div>
+	<div class="row">
+		<label>F's:</label><br>
+		<input type="text" name="f">
+		<br>
+	</div>
+	<div class="row">
+		<label>W's:</label><br>
+		<input type="text" name="w">
+		<br>
+	</div>
 	<br>
-	F's:<br>
-	<input type="text" name="f">
-	<br>
-	<br>
-	<input name="update_conf" type="submit">
+	<div class="row">
+		<input name="update_conf" type="submit">
+	</div>
+		{% else %}
+			<div class="container">
+				<div class="row">
+					<input name="delete_conf" type="submit">
+				</div>
+			</div>
 	</form>
+}
 </div>
+		{% endif %}
 {% endblock %}
