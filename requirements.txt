@@ -3,3 +3,6 @@
 ### Requirements without version specifiers ###
 flask
 flask-mysql
+flask-mail
+flask_sqlalchemy
+flask_user
