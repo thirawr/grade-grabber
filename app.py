@@ -1,7 +1,9 @@
 from cred import Cred
 
-from flask import Flask, render_template, request, url_for, abort, flash, redirect
+from flask import Flask, render_template, request, url_for, abort, flash, redirect, current_app
 from flaskext.mysql import MySQL
+from flask_login import current_user
+
 from json import dumps 
 from string import ascii_lowercase, ascii_uppercase
 
@@ -140,6 +142,7 @@ def record_is_duplicate(crn, raw_term, section):
 		return True
 	else:
 		return False
+
 
 #takes SELECT * FROM grade_aggregates output
 #returns aggregates counts of letter grades
@@ -490,6 +493,40 @@ def has_multiple_courses(subj, num):
 	else:
 		return False 
 
+@app.route("/recommend", methods=['GET'])
+def recommend():
+    user_manager = current_app.user_manager
+    db_adapter = user_manager.db_adapter
+
+    user = user_manager.find_user_by_username(current_user.username)
+    print(user.year, user.major, user.gpa)
+
+    year_to_number = {
+        'Freshman': (0, 299),
+        'Sophomore': (200, 399),
+        'Junior': (300, 499),
+        'Senior': (499, 499),
+        'Masters': (499, 599),
+        'PhD': (499, 599)
+    }
+
+    course_range = year_to_number[user.year]
+    subject = user.major
+    gpa = float(user.gpa)
+
+    print(course_range, subject, gpa)
+
+    with db_connection as cursor:
+        query = """SELECT c.c_id FROM courses AS c INNER JOIN grade_aggregates AS g ON c.c_id = g.c_id
+WHERE g.average_gpa >= %s AND c.course_number >= %s AND c.course_number <= %s AND c.subject = %s ORDER BY RAND() LIMIT 1"""
+        args = (gpa, course_range[0], course_range[1], subject)
+        cursor.execute(query, args)
+        cid = cursor.fetchone()
+        if not cid:
+            flash('No recommendations available', 'info')
+            return redirect(url_for('front'))
+        print(cursor.fetchone(), cid)
+    return show_selected_course(cid)
 
 @app.route("/", methods=['GET', 'POST'])
 def front():
@@ -573,6 +610,7 @@ def show_selected_course(c_id):
 		semDetails = get_semesters_from_c_id(results[0])
 
 		return render_template('query.html', shortName = (results[1] + str(results[2])), className = className, results=tableResults, semDetails = semDetails, vizData = vizData, overall_grades=results, course_summary = course_desc)
+
 
 @app.route('/surprise')
 def show_random_course():
