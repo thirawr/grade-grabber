@@ -3,6 +3,7 @@ from cred import Cred
 from flask import Flask, render_template, request, url_for, abort, flash, redirect, current_app
 from flaskext.mysql import MySQL
 from flask_login import current_user
+from flask_user import login_required
 
 from json import dumps 
 from string import ascii_lowercase, ascii_uppercase
@@ -620,6 +621,7 @@ def show_random_course():
 	return show_selected_course(c_id)
 
 @app.route("/modify", methods=['GET', 'POST'])
+@login_required
 def modify():
 	#status = insert_record(['CS', '411', 'Database Systems', '11111', '120313', '3.5', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 'Tyler Davis', 2112])
 	if request.method == 'POST':

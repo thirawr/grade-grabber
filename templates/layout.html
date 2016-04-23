@@ -57,6 +57,7 @@
 	                <li><a href="/recommend">Recommendation</a></li>
 	                <li role="separator" class="divider"></li>
 	                <li><a href="{{ url_for('user.logout') }}">Sign out</a>
+    		        <li><a href="{{ url_for('modify') }}">Admin Panel</a></li>
 	</li>
 	              </ul>
 	            </li>
@@ -65,7 +66,6 @@
 	              	<a href="{{ url_for('user.login') }}">Sign in</a>
 	            	</li>
 	            {% endif %}
-		        <li><a href="{{ url_for('modify') }}">Admin Panel</a></li>
 		      </ul>
 		    </div><!--/.nav-collapse -->
 		  </div>
