@@ -7,6 +7,16 @@
   <div class="jumbotron">
     <h1>{%trans%}User profile{%endtrans%}</h1>
 
+    <form action="" method="POST" class="form" role="form">
+        {{ form.hidden_tag() }}
+        {{ render_field(form.major, tabindex=10) }}
+        {{ render_field(form.year, tabindex=20) }}
+        {{ render_field(form.gpa, tabindex=30) }}
+        {{ render_submit_field(form.submit, tabindex=90) }}
+    </form>
+    
+    <br><br><br>
+
     {% if user_manager.enable_change_username %}
     <p><a href="{{ url_for('user.change_username') }}">{%trans%}Change username{%endtrans%}</a></p>
     {% endif %}
